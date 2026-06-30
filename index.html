@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Almalead | Plataforma Academica</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegacion principal">
+        <div class="brand">
+          <div class="brand-mark">AL</div>
+          <div>
+            <p>Almalead</p>
+            <span>Certificacion Coaching</span>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <a href="#resumen" class="active">Resumen</a>
+          <a href="#ruta">Ruta academica</a>
+          <a href="#materiales">Materiales</a>
+          <a href="#practicas">Practicas</a>
+          <a href="#certificacion">Certificacion</a>
+          <a href="#admin">Direccion academica</a>
+        </nav>
+
+        <section class="mentor-panel">
+          <p class="eyebrow">Mentora asignada</p>
+          <h2>Mariana Torres</h2>
+          <p>Proxima supervision: jueves 9:00 a. m.</p>
+          <button class="ghost-button" type="button" data-open-panel="agenda">Ver agenda</button>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Portal del estudiante</p>
+            <h1>Proceso de certificacion Almalead</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-button" type="button" title="Buscar">⌕</button>
+            <button class="icon-button" type="button" title="Notificaciones">!</button>
+            <button class="profile-button" type="button">
+              <span>JP</span>
+              Javier Penalozar
+            </button>
+          </div>
+        </header>
+
+        <section id="resumen" class="summary-grid">
+          <article class="progress-hero">
+            <div>
+              <p class="eyebrow">Cohorte Liderazgo Consciente</p>
+              <h2>Tu avance integral</h2>
+              <p>Completa clases, practicas, bitacoras y evaluaciones para habilitar la certificacion final.</p>
+            </div>
+            <div class="radial-progress" aria-label="Progreso total">
+              <span id="overallProgress">0%</span>
+            </div>
+          </article>
+
+          <article class="metric-card">
+            <span>Horas formativas</span>
+            <strong id="hoursCount">0/72</strong>
+            <p>Clases, laboratorios y sesiones de integracion.</p>
+          </article>
+          <article class="metric-card">
+            <span>Practicas registradas</span>
+            <strong id="practiceCount">0/12</strong>
+            <p>Conversaciones de coaching documentadas.</p>
+          </article>
+          <article class="metric-card">
+            <span>Estado</span>
+            <strong id="certStatus">En curso</strong>
+            <p>La certificacion se activa con 85% o mas.</p>
+          </article>
+        </section>
+
+        <section id="ruta" class="content-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Malla academica</p>
+              <h2>Ruta de estudio</h2>
+            </div>
+            <div class="segmented-control" role="tablist" aria-label="Filtro de modulos">
+              <button type="button" class="active" data-filter="all">Todos</button>
+              <button type="button" data-filter="pending">Pendientes</button>
+              <button type="button" data-filter="done">Completados</button>
+            </div>
+          </div>
+          <div class="module-list" id="moduleList"></div>
+        </section>
+
+        <section id="materiales" class="content-band two-column">
+          <div>
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Biblioteca</p>
+                <h2>Material de estudio</h2>
+              </div>
+            </div>
+            <div class="resource-list" id="resourceList"></div>
+          </div>
+
+          <aside class="tool-panel">
+            <p class="eyebrow">Bitacora reflexiva</p>
+            <h2>Registro semanal</h2>
+            <label for="reflection">Aprendizaje clave</label>
+            <textarea id="reflection" rows="8" placeholder="Escribe aqui tu reflexion de la semana..."></textarea>
+            <button class="primary-button" type="button" id="saveReflection">Guardar bitacora</button>
+            <p class="save-state" id="saveState">Sin cambios recientes.</p>
+          </aside>
+        </section>
+
+        <section id="practicas" class="content-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Evidencia aplicada</p>
+              <h2>Practicas y entregables</h2>
+            </div>
+            <button class="primary-button" type="button" id="addPractice">Registrar practica</button>
+          </div>
+          <div class="practice-table-wrap">
+            <table class="practice-table">
+              <thead>
+                <tr>
+                  <th>Actividad</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Observacion</th>
+                </tr>
+              </thead>
+              <tbody id="practiceRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="certificacion" class="content-band certification-band">
+          <div>
+            <p class="eyebrow">Cierre del proceso</p>
+            <h2>Certificacion profesional</h2>
+            <p>Cuando el avance supere el umbral academico, el estudiante podra solicitar evaluacion final, entrevista y emision del certificado.</p>
+          </div>
+          <div class="checklist" id="certChecklist"></div>
+        </section>
+
+        <section id="admin" class="content-band admin-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Vista direccion academica</p>
+              <h2>Seguimiento de cohorte</h2>
+            </div>
+            <button class="ghost-button" type="button" id="exportSnapshot">Exportar resumen</button>
+          </div>
+          <div class="cohort-grid">
+            <article>
+              <span>Estudiantes activos</span>
+              <strong>28</strong>
+            </article>
+            <article>
+              <span>Promedio de avance</span>
+              <strong>64%</strong>
+            </article>
+            <article>
+              <span>Alertas pedagogicas</span>
+              <strong>4</strong>
+            </article>
+            <article>
+              <span>Certificables este mes</span>
+              <strong>9</strong>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="side-panel" id="agendaPanel" aria-hidden="true">
+      <div class="panel-card">
+        <button class="icon-button close-panel" type="button" title="Cerrar">x</button>
+        <p class="eyebrow">Agenda academica</p>
+        <h2>Proximas sesiones</h2>
+        <ol>
+          <li><strong>Supervision grupal</strong><span>Jueves 9:00 a. m.</span></li>
+          <li><strong>Laboratorio de escucha</strong><span>Sabado 10:30 a. m.</span></li>
+          <li><strong>Evaluacion modulo 3</strong><span>Martes 6:00 p. m.</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
