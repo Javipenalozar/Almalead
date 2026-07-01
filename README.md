@@ -58,3 +58,29 @@ Para pasar de prototipo a plataforma real:
 - Carga privada de materiales PDF, video y documentos.
 - Rubricas, evaluaciones y aprobacion de certificacion.
 - Panel administrativo para seguimiento por estudiante.
+
+## Supabase
+
+El esquema inicial esta en:
+
+```text
+supabase/schema.sql
+```
+
+Incluye tablas para perfiles, roles, cohortes, inscripciones, modulos, progreso por estudiante, evaluaciones, practicas, bitacora y materiales. Tambien deja activadas politicas RLS para separar permisos de estudiante, mentor y admin.
+
+Flujo recomendado:
+
+1. Crear el proyecto en Supabase.
+2. Abrir `SQL Editor`.
+3. Pegar y ejecutar el contenido de `supabase/schema.sql`.
+4. Crear usuarios desde `Authentication`.
+5. Insertar o actualizar el perfil de cada usuario en `profiles` con rol `student`, `mentor` o `admin`.
+6. Guardar en Netlify las variables publicas del frontend:
+
+```text
+SUPABASE_URL=...
+SUPABASE_ANON_KEY=...
+```
+
+La siguiente etapa de codigo es reemplazar el login demo y el `localStorage` por Supabase Auth y consultas reales a estas tablas.
