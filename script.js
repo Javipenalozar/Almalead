@@ -1,59 +1,101 @@
 const modules = [
   {
     id: "m1",
-    title: "Fundamentos de coaching Almalead",
-    description: "Etica, contrato, presencia, rol del coach y limites de acompanamiento.",
-    hours: 10,
-    type: "Base",
+    title: "Fundamentos ontologicos y el observador",
+    description: "Lenguaje, emociones y cuerpo como base del observador ontologico.",
+    hours: 1,
+    type: "O-L-E-C",
   },
   {
     id: "m2",
-    title: "Escucha profunda y preguntas poderosas",
-    description: "Practicas para distinguir hechos, interpretaciones, emociones y necesidades.",
-    hours: 12,
-    type: "Laboratorio",
+    title: "Lenguaje que crea realidad",
+    description: "Actos linguisticos, declaraciones, pedidos, ofertas, promesas y juicios fundados.",
+    hours: 1,
+    type: "Ontologia",
   },
   {
     id: "m3",
-    title: "Liderazgo consciente",
-    description: "Autoconocimiento, proposito, toma de decisiones y conversaciones dificiles.",
-    hours: 14,
-    type: "Modulo central",
+    title: "Emocion y cuerpo",
+    description: "Apertura al aprendizaje, estados emocionales y corporalidad que habilita accion.",
+    hours: 1,
+    type: "Emocional",
   },
   {
     id: "m4",
-    title: "Diseno de procesos de transformacion",
-    description: "Objetivos, indicadores, sesiones, acuerdos y cierre del proceso.",
-    hours: 12,
-    type: "Aplicacion",
+    title: "Diseno de futuro y coordinacion de acciones",
+    description: "Acciones sostenibles, compromisos, promesas cumplidas e indicadores simples.",
+    hours: 1,
+    type: "Accion",
   },
   {
     id: "m5",
-    title: "Practica supervisada",
-    description: "Casos reales, retroalimentacion, bitacora y criterios de desempeno.",
-    hours: 16,
-    type: "Supervision",
+    title: "Escucha profunda y feedback que transforma",
+    description: "Conversaciones poderosas, retroalimentacion y cuidado del vinculo.",
+    hours: 1,
+    type: "Conversacion",
   },
   {
     id: "m6",
-    title: "Evaluacion final y certificacion",
-    description: "Sesion observada, entrevista academica y carpeta de evidencias.",
-    hours: 8,
+    title: "PNL etica al servicio del proceso",
+    description: "Anclajes y reencuadres usados con responsabilidad dentro del acompanamiento.",
+    hours: 1,
+    type: "Herramientas",
+  },
+  {
+    id: "m7",
+    title: "Coaching emocional aplicado",
+    description: "Ansiedad, estres, limites y gestion emocional dentro del marco del coaching.",
+    hours: 1,
+    type: "Aplicacion",
+  },
+  {
+    id: "m8",
+    title: "Coaching educativo",
+    description: "Habitos, aprendizaje, evaluacion y acompanamiento de procesos formativos.",
+    hours: 1,
+    type: "Educativo",
+  },
+  {
+    id: "m9",
+    title: "Etica profesional y consentimiento informado",
+    description: "Limites del coaching, consentimiento informado y derivacion responsable.",
+    hours: 1,
+    type: "Etica",
+  },
+  {
+    id: "m10",
+    title: "Practica supervisada I",
+    description: "Casos guiados, role plays, grabaciones y retroalimentacion supervisada.",
+    hours: 1,
+    type: "Supervision",
+  },
+  {
+    id: "m11",
+    title: "Practica supervisada II",
+    description: "Casos del participante, evidencias y feedback con metricas de progreso.",
+    hours: 1,
+    type: "Supervision",
+  },
+  {
+    id: "m12",
+    title: "Integracion, evaluacion y certificacion",
+    description: "Evaluacion final, carpeta de entregables y cierre del proceso de certificacion.",
+    hours: 1,
     type: "Cierre",
   },
 ];
 
 const resources = [
-  ["Manual del estudiante", "Guia PDF con reglas academicas, rubricas y cronograma.", "PDF"],
-  ["Plantilla de bitacora", "Documento editable para registrar aprendizajes semanales.", "DOC"],
-  ["Bibliografia esencial", "Lecturas base de coaching, liderazgo y presencia.", "Lista"],
-  ["Grabaciones de clase", "Repositorio de sesiones sincrono y material complementario.", "Video"],
+  ["Marco O-L-E-C", "Observador, Lenguaje, Emocion y Cuerpo como eje metodologico.", "Guia"],
+  ["Practica supervisada", "Role plays, grabaciones, feedback y casos reales de la cohorte.", "Lab"],
+  ["Metricas de progreso", "Conversaciones poderosas semanales, promesas cumplidas y acciones diarias de 5 minutos.", "Tablero"],
+  ["Marco etico", "Limites del coaching, consentimiento informado y derivacion responsable.", "PDF"],
 ];
 
 let practices = [
-  ["Sesion de diagnostico", "2026-07-02", "Completada", "Aprobada por mentora"],
-  ["Conversacion de objetivos", "2026-07-08", "En revision", "Pendiente de retroalimentacion"],
-  ["Practica con coachee externo", "2026-07-16", "Pendiente", "Subir consentimiento"],
+  ["Role play O-L-E-C", "2026-02-17", "Completada", "Observador, lenguaje, emocion y cuerpo"],
+  ["Grabacion de conversacion poderosa", "2026-03-03", "En revision", "Pendiente de feedback supervisado"],
+  ["Caso del participante", "2026-03-17", "Pendiente", "Subir consentimiento informado"],
 ];
 
 const state = {
@@ -108,7 +150,7 @@ function renderModules() {
         <h3>${module.title}</h3>
         <p>${module.description}</p>
         <div class="module-meta">
-          <span class="pill">${module.hours} horas</span>
+          <span class="pill">Modulo ${modules.findIndex((item) => item.id === module.id) + 1}</span>
           <span class="pill">${module.type}</span>
           <span class="pill">${done ? "Completado" : "En curso"}</span>
         </div>
@@ -158,7 +200,8 @@ function renderCertification() {
   const { completedHours, totalHours, blended } = calculateProgress();
   const donePractices = practices.filter((practice) => practice[2] === "Completada").length;
   const items = [
-    ["72 horas academicas", completedHours >= totalHours],
+    ["12 modulos completados", completedHours >= totalHours],
+    ["Asistencia minima 80-85%", completedHours >= 10],
     ["12 practicas documentadas", donePractices >= 12],
     ["Bitacora reflexiva activa", reflection.value.trim().length > 20],
     ["Evaluacion final habilitada", blended >= 85],
@@ -233,14 +276,14 @@ document.querySelector("#addPractice").addEventListener("click", () => {
   const next = practices.length + 1;
   practices = [
     ...practices,
-    [`Practica registrada ${next}`, new Date().toISOString().slice(0, 10), "En revision", "Pendiente de lectura academica"],
+    [`Evidencia registrada ${next}`, new Date().toISOString().slice(0, 10), "En revision", "Pendiente de feedback academico"],
   ];
   renderAll();
 });
 
 document.querySelector("#exportSnapshot").addEventListener("click", async (event) => {
   const { completedHours, totalHours, blended } = calculateProgress();
-  const snapshot = `Almalead - resumen academico\nAvance: ${blended}%\nHoras: ${completedHours}/${totalHours}\nPracticas: ${practices.length}\nEstado: ${certStatus.textContent}`;
+  const snapshot = `Almalead - resumen academico\nAvance: ${blended}%\nModulos: ${completedHours}/${totalHours}\nPracticas: ${practices.length}\nEstado: ${certStatus.textContent}`;
   try {
     await navigator.clipboard.writeText(snapshot);
     event.target.textContent = "Resumen copiado";
