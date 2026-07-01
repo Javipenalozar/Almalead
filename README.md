@@ -49,6 +49,33 @@ almalead -> TU_SITE.netlify.app
 
 Netlify tambien puede generar automaticamente el certificado SSL cuando el DNS ya resuelve correctamente.
 
+## Control de deploys en Netlify
+
+La cuenta tiene un limite mensual de deploys, asi que este proyecto usa una puerta manual para evitar despliegues automaticos innecesarios.
+
+Netlify revisa `scripts/netlify-ignore.js` antes de construir. Por defecto, cualquier commit normal se omite para proteger la cuota. Para publicar en produccion, el mensaje del commit debe incluir una de estas marcas:
+
+```text
+[deploy]
+[production]
+[publicar]
+```
+
+Ejemplo para publicar todos los cambios acumulados sin modificar archivos:
+
+```bash
+git commit --allow-empty -m "Publicar Almalead [deploy]"
+git push
+```
+
+Tambien se puede forzar desde Netlify agregando temporalmente la variable:
+
+```text
+NETLIFY_FORCE_DEPLOY=true
+```
+
+Recomendacion operativa: trabajar y revisar localmente; acumular varios cambios; publicar solo cuando una version este aprobada.
+
 ## Siguiente fase recomendada
 
 Para pasar de prototipo a plataforma real:

@@ -1,6 +1,7 @@
 [build]
   publish = "."
   command = ""
+  ignore = "node ./scripts/netlify-ignore.js"
 
 [[headers]]
   for = "/*"
