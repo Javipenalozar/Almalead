@@ -116,6 +116,11 @@ const state = {
   filter: "all",
 };
 
+const demoUsers = {
+  estudiante: { password: "almalead2026", name: "Estudiante Almalead", initials: "EA" },
+  admin: { password: "admin2026", name: "Dirección Académica", initials: "DA" },
+};
+
 if (!state.approvals) {
   const completed = JSON.parse(localStorage.getItem("almalead.completed") || "[]");
   state.approvals = Object.fromEntries(
@@ -127,6 +132,8 @@ if (!state.approvals) {
 }
 
 const moduleList = document.querySelector("#moduleList");
+const loginForm = document.querySelector("#loginForm");
+const loginState = document.querySelector("#loginState");
 const evaluationList = document.querySelector("#evaluationList");
 const resourceList = document.querySelector("#resourceList");
 const practiceRows = document.querySelector("#practiceRows");
@@ -139,6 +146,22 @@ const practiceCount = document.querySelector("#practiceCount");
 const certStatus = document.querySelector("#certStatus");
 const reflection = document.querySelector("#reflection");
 const saveState = document.querySelector("#saveState");
+const logoutButton = document.querySelector("#logoutButton");
+const profileButton = document.querySelector(".profile-button");
+const profileName = document.querySelector("#profileName");
+
+function applySession(user) {
+  document.body.classList.remove("auth-locked");
+  if (user) {
+    profileName.textContent = user.name;
+    profileButton.querySelector("span").textContent = user.initials;
+  }
+}
+
+function restoreSession() {
+  const savedUser = JSON.parse(sessionStorage.getItem("almalead.session") || "null");
+  if (savedUser) applySession(savedUser);
+}
 
 function persist() {
   localStorage.setItem("almalead.approvals", JSON.stringify(state.approvals));
@@ -406,3 +429,32 @@ document.querySelector("#exportSnapshot").addEventListener("click", async (event
 
 reflection.value = state.reflection;
 renderAll();
+restoreSession();
+
+loginForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const formData = new FormData(loginForm);
+  const username = String(formData.get("username") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const user = demoUsers[username];
+
+  if (!user || user.password !== password) {
+    loginState.textContent = "Usuario o contraseña incorrectos.";
+    loginState.className = "login-state error";
+    return;
+  }
+
+  const sessionUser = { name: user.name, initials: user.initials };
+  sessionStorage.setItem("almalead.session", JSON.stringify(sessionUser));
+  loginState.textContent = "Acceso aprobado. Entrando al portal...";
+  loginState.className = "login-state success";
+  applySession(sessionUser);
+});
+
+logoutButton.addEventListener("click", () => {
+  sessionStorage.removeItem("almalead.session");
+  loginForm.reset();
+  loginState.textContent = "Acceso demo: estudiante / almalead2026";
+  loginState.className = "login-state";
+  document.body.classList.add("auth-locked");
+});
