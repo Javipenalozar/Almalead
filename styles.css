@@ -514,6 +514,76 @@ button {
   transform: translateX(18px);
 }
 
+.module-card.locked {
+  opacity: 0.58;
+}
+
+.module-submit,
+.table-action {
+  white-space: nowrap;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.evaluation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.evaluation-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 247, 223, 0.04);
+}
+
+.evaluation-card h3,
+.evaluation-card p,
+.admin-approval h3 {
+  margin: 0;
+}
+
+.evaluation-card h3 {
+  margin-top: 10px;
+}
+
+.evaluation-card p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.evaluation-card.locked {
+  opacity: 0.58;
+}
+
+.evaluation-actions {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.admin-approval {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.admin-approval h3 {
+  margin-bottom: 12px;
+}
+
+.approval-table td:last-child {
+  width: 150px;
+}
+
 .two-column {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
@@ -737,7 +807,8 @@ textarea {
   .summary-grid,
   .two-column,
   .certification-band,
-  .cohort-grid {
+  .cohort-grid,
+  .evaluation-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -769,6 +840,7 @@ textarea {
   .two-column,
   .certification-band,
   .cohort-grid,
+  .evaluation-grid,
   .nav-list {
     grid-template-columns: 1fr;
   }
@@ -782,12 +854,15 @@ textarea {
   }
 
   .module-card,
-  .resource-card {
+  .resource-card,
+  .evaluation-card {
     grid-template-columns: 1fr;
   }
 
-  .module-actions {
+  .module-actions,
+  .evaluation-actions {
     justify-content: space-between;
+    justify-items: stretch;
   }
 
   .segmented-control {

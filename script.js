@@ -3,6 +3,7 @@ const modules = [
     id: "m1",
     title: "Fundamentos ontologicos y el observador",
     description: "Lenguaje, emociones y cuerpo como base del observador ontologico.",
+    evaluation: "Mapa personal del observador: lenguaje, emocion y cuerpo.",
     hours: 1,
     type: "O-L-E-C",
   },
@@ -10,6 +11,7 @@ const modules = [
     id: "m2",
     title: "Lenguaje que crea realidad",
     description: "Actos linguisticos, declaraciones, pedidos, ofertas, promesas y juicios fundados.",
+    evaluation: "Analisis de actos linguisticos en una conversacion real.",
     hours: 1,
     type: "Ontologia",
   },
@@ -17,6 +19,7 @@ const modules = [
     id: "m3",
     title: "Emocion y cuerpo",
     description: "Apertura al aprendizaje, estados emocionales y corporalidad que habilita accion.",
+    evaluation: "Bitacora de estados emocionales y practica corporal aplicada.",
     hours: 1,
     type: "Emocional",
   },
@@ -24,6 +27,7 @@ const modules = [
     id: "m4",
     title: "Diseno de futuro y coordinacion de acciones",
     description: "Acciones sostenibles, compromisos, promesas cumplidas e indicadores simples.",
+    evaluation: "Diseno de futuro con promesas, pedidos y acciones medibles.",
     hours: 1,
     type: "Accion",
   },
@@ -31,6 +35,7 @@ const modules = [
     id: "m5",
     title: "Escucha profunda y feedback que transforma",
     description: "Conversaciones poderosas, retroalimentacion y cuidado del vinculo.",
+    evaluation: "Registro de feedback y escucha profunda en role play.",
     hours: 1,
     type: "Conversacion",
   },
@@ -38,6 +43,7 @@ const modules = [
     id: "m6",
     title: "PNL etica al servicio del proceso",
     description: "Anclajes y reencuadres usados con responsabilidad dentro del acompanamiento.",
+    evaluation: "Caso breve con reencuadre o anclaje usado eticamente.",
     hours: 1,
     type: "Herramientas",
   },
@@ -45,6 +51,7 @@ const modules = [
     id: "m7",
     title: "Coaching emocional aplicado",
     description: "Ansiedad, estres, limites y gestion emocional dentro del marco del coaching.",
+    evaluation: "Plan de acompanamiento emocional con limites y derivacion responsable.",
     hours: 1,
     type: "Aplicacion",
   },
@@ -52,6 +59,7 @@ const modules = [
     id: "m8",
     title: "Coaching educativo",
     description: "Habitos, aprendizaje, evaluacion y acompanamiento de procesos formativos.",
+    evaluation: "Diseno de habito o ruta de aprendizaje con indicadores.",
     hours: 1,
     type: "Educativo",
   },
@@ -59,6 +67,7 @@ const modules = [
     id: "m9",
     title: "Etica profesional y consentimiento informado",
     description: "Limites del coaching, consentimiento informado y derivacion responsable.",
+    evaluation: "Entrega de consentimiento informado y analisis de limites.",
     hours: 1,
     type: "Etica",
   },
@@ -66,6 +75,7 @@ const modules = [
     id: "m10",
     title: "Practica supervisada I",
     description: "Casos guiados, role plays, grabaciones y retroalimentacion supervisada.",
+    evaluation: "Grabacion de caso guiado con autoevaluacion y feedback.",
     hours: 1,
     type: "Supervision",
   },
@@ -73,6 +83,7 @@ const modules = [
     id: "m11",
     title: "Practica supervisada II",
     description: "Casos del participante, evidencias y feedback con metricas de progreso.",
+    evaluation: "Caso real del participante con evidencias y metricas.",
     hours: 1,
     type: "Supervision",
   },
@@ -80,6 +91,7 @@ const modules = [
     id: "m12",
     title: "Integracion, evaluacion y certificacion",
     description: "Evaluacion final, carpeta de entregables y cierre del proceso de certificacion.",
+    evaluation: "Carpeta final de evidencias y evaluacion integradora.",
     hours: 1,
     type: "Cierre",
   },
@@ -99,15 +111,27 @@ let practices = [
 ];
 
 const state = {
-  completed: JSON.parse(localStorage.getItem("almalead.completed") || "[]"),
+  approvals: JSON.parse(localStorage.getItem("almalead.approvals") || "null"),
   reflection: localStorage.getItem("almalead.reflection") || "",
   filter: "all",
 };
 
+if (!state.approvals) {
+  const completed = JSON.parse(localStorage.getItem("almalead.completed") || "[]");
+  state.approvals = Object.fromEntries(
+    modules.map((module, index) => {
+      const legacyApproved = completed.includes(module.id);
+      return [module.id, legacyApproved ? "approved" : index === 0 ? "available" : "locked"];
+    }),
+  );
+}
+
 const moduleList = document.querySelector("#moduleList");
+const evaluationList = document.querySelector("#evaluationList");
 const resourceList = document.querySelector("#resourceList");
 const practiceRows = document.querySelector("#practiceRows");
 const certChecklist = document.querySelector("#certChecklist");
+const approvalRows = document.querySelector("#approvalRows");
 const radialProgress = document.querySelector(".radial-progress");
 const overallProgress = document.querySelector("#overallProgress");
 const hoursCount = document.querySelector("#hoursCount");
@@ -117,12 +141,39 @@ const reflection = document.querySelector("#reflection");
 const saveState = document.querySelector("#saveState");
 
 function persist() {
-  localStorage.setItem("almalead.completed", JSON.stringify(state.completed));
+  localStorage.setItem("almalead.approvals", JSON.stringify(state.approvals));
+}
+
+function getModuleStatus(moduleId) {
+  return state.approvals[moduleId] || "locked";
+}
+
+function getStatusLabel(status) {
+  const labels = {
+    approved: "Aprobado",
+    submitted: "Evaluacion enviada",
+    available: "Disponible",
+    locked: "Bloqueado",
+  };
+  return labels[status] || "Bloqueado";
+}
+
+function syncUnlockedModules() {
+  modules.forEach((module, index) => {
+    const status = getModuleStatus(module.id);
+    const previous = modules[index - 1];
+    if (index === 0 && status === "locked") {
+      state.approvals[module.id] = "available";
+    }
+    if (previous && getModuleStatus(previous.id) === "approved" && status === "locked") {
+      state.approvals[module.id] = "available";
+    }
+  });
 }
 
 function calculateProgress() {
   const completedHours = modules
-    .filter((module) => state.completed.includes(module.id))
+    .filter((module) => getModuleStatus(module.id) === "approved")
     .reduce((sum, module) => sum + module.hours, 0);
   const totalHours = modules.reduce((sum, module) => sum + module.hours, 0);
   const modulePercent = completedHours / totalHours;
@@ -133,18 +184,20 @@ function calculateProgress() {
 }
 
 function renderModules() {
+  syncUnlockedModules();
   moduleList.innerHTML = "";
   const filtered = modules.filter((module) => {
-    const done = state.completed.includes(module.id);
+    const done = getModuleStatus(module.id) === "approved";
     if (state.filter === "done") return done;
     if (state.filter === "pending") return !done;
     return true;
   });
 
   filtered.forEach((module) => {
-    const done = state.completed.includes(module.id);
+    const status = getModuleStatus(module.id);
+    const done = status === "approved";
     const card = document.createElement("article");
-    card.className = `module-card ${done ? "done" : ""}`;
+    card.className = `module-card ${done ? "done" : ""} ${status === "locked" ? "locked" : ""}`;
     card.innerHTML = `
       <div>
         <h3>${module.title}</h3>
@@ -152,18 +205,42 @@ function renderModules() {
         <div class="module-meta">
           <span class="pill">Modulo ${modules.findIndex((item) => item.id === module.id) + 1}</span>
           <span class="pill">${module.type}</span>
-          <span class="pill">${done ? "Completado" : "En curso"}</span>
+          <span class="pill">${getStatusLabel(status)}</span>
         </div>
       </div>
       <div class="module-actions">
-        <strong>${done ? "100%" : "0%"}</strong>
-        <button class="module-toggle" type="button" aria-label="Cambiar estado de ${module.title}" data-module="${module.id}">
-          <span></span>
+        <strong>${done ? "100%" : status === "submitted" ? "En revision" : status === "available" ? "Abierto" : "Cerrado"}</strong>
+        <button class="ghost-button module-submit" type="button" data-submit-module="${module.id}" ${status === "locked" || status === "approved" || status === "submitted" ? "disabled" : ""}>
+          Enviar evaluacion
         </button>
       </div>
     `;
     moduleList.appendChild(card);
   });
+}
+
+function renderEvaluations() {
+  syncUnlockedModules();
+  evaluationList.innerHTML = modules
+    .map((module, index) => {
+      const status = getModuleStatus(module.id);
+      return `
+        <article class="evaluation-card ${status}">
+          <div>
+            <span class="pill">Modulo ${index + 1}</span>
+            <h3>${module.title}</h3>
+            <p>${module.evaluation}</p>
+          </div>
+          <div class="evaluation-actions">
+            <span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span>
+            <button class="primary-button" type="button" data-submit-module="${module.id}" ${status === "available" ? "" : "disabled"}>
+              Enviar
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
 }
 
 function renderResources() {
@@ -228,21 +305,53 @@ function renderMetrics() {
   certStatus.textContent = blended >= 85 ? "Certificable" : "En curso";
 }
 
+function renderApprovals() {
+  syncUnlockedModules();
+  approvalRows.innerHTML = modules
+    .map((module, index) => {
+      const status = getModuleStatus(module.id);
+      const canApprove = status === "submitted";
+      return `
+        <tr>
+          <td>Modulo ${index + 1}: ${module.title}</td>
+          <td>${module.evaluation}</td>
+          <td><span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span></td>
+          <td>
+            <button class="primary-button table-action" type="button" data-approve-module="${module.id}" ${canApprove ? "" : "disabled"}>
+              Aprobar paso
+            </button>
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
 function renderAll() {
   renderModules();
+  renderEvaluations();
   renderResources();
   renderPractices();
   renderMetrics();
   renderCertification();
+  renderApprovals();
 }
 
 document.addEventListener("click", (event) => {
-  const toggle = event.target.closest("[data-module]");
-  if (toggle) {
-    const moduleId = toggle.dataset.module;
-    state.completed = state.completed.includes(moduleId)
-      ? state.completed.filter((id) => id !== moduleId)
-      : [...state.completed, moduleId];
+  const submitButton = event.target.closest("[data-submit-module]");
+  if (submitButton && !submitButton.disabled) {
+    const moduleId = submitButton.dataset.submitModule;
+    if (getModuleStatus(moduleId) === "available") {
+      state.approvals[moduleId] = "submitted";
+      persist();
+      renderAll();
+    }
+  }
+
+  const approveButton = event.target.closest("[data-approve-module]");
+  if (approveButton && !approveButton.disabled) {
+    const moduleId = approveButton.dataset.approveModule;
+    state.approvals[moduleId] = "approved";
     persist();
     renderAll();
   }

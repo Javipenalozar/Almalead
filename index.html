@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Almalead | Plataforma Academica</title>
-    <link rel="stylesheet" href="styles.css?v=20260630-programa" />
+    <link rel="stylesheet" href="styles.css?v=20260630-aprobaciones" />
   </head>
   <body>
     <div class="app-shell">
@@ -20,6 +20,7 @@
         <nav class="nav-list">
           <a href="#resumen" class="active">Resumen</a>
           <a href="#ruta">Ruta academica</a>
+          <a href="#evaluaciones">Evaluaciones</a>
           <a href="#materiales">Materiales</a>
           <a href="#practicas">Practicas</a>
           <a href="#certificacion">Certificacion</a>
@@ -89,10 +90,20 @@
             <div class="segmented-control" role="tablist" aria-label="Filtro de modulos">
               <button type="button" class="active" data-filter="all">Todos</button>
               <button type="button" data-filter="pending">Pendientes</button>
-              <button type="button" data-filter="done">Completados</button>
+              <button type="button" data-filter="done">Aprobados</button>
             </div>
           </div>
           <div class="module-list" id="moduleList"></div>
+        </section>
+
+        <section id="evaluaciones" class="content-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Evaluacion por modulo</p>
+              <h2>Entregas academicas</h2>
+            </div>
+          </div>
+          <div class="evaluation-grid" id="evaluationList"></div>
         </section>
 
         <section id="materiales" class="content-band two-column">
@@ -174,6 +185,22 @@
               <strong>12 modulos</strong>
             </article>
           </div>
+          <div class="admin-approval">
+            <h3>Aprobacion manual por estudiante</h3>
+            <div class="practice-table-wrap">
+              <table class="practice-table approval-table">
+                <thead>
+                  <tr>
+                    <th>Modulo</th>
+                    <th>Evaluacion</th>
+                    <th>Estado academico</th>
+                    <th>Accion admin</th>
+                  </tr>
+                </thead>
+                <tbody id="approvalRows"></tbody>
+              </table>
+            </div>
+          </div>
         </section>
       </main>
     </div>
@@ -191,6 +218,6 @@
       </div>
     </div>
 
-    <script src="script.js?v=20260630-programa"></script>
+    <script src="script.js?v=20260630-aprobaciones"></script>
   </body>
 </html>
