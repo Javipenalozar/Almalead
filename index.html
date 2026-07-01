@@ -4,28 +4,52 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Almalead | Plataforma Académica</title>
-    <link rel="stylesheet" href="styles.css?v=20260630-login" />
+    <link rel="stylesheet" href="styles.css?v=20260630-login-cinematic" />
   </head>
   <body class="auth-locked">
     <section class="login-screen" id="loginScreen" aria-label="Ingreso a Almalead">
       <div class="login-aura" aria-hidden="true"></div>
+      <div class="login-wave login-wave-left" aria-hidden="true"></div>
+      <div class="login-wave login-wave-right" aria-hidden="true"></div>
       <div class="login-content">
         <img class="login-logo" src="assets/logo-almalead-transparent.png" alt="Almalead" />
         <div class="login-copy">
-          <p class="eyebrow">Academia de liderazgo coherente</p>
           <blockquote>
             “No te vendo certezas; te entreno para conversar, decidir y crear el futuro que sí puedes sostener.”
           </blockquote>
-          <cite>Javi Peñaloza</cite>
+          <cite><span></span>Javi Peñaloza<span></span></cite>
         </div>
         <form class="login-form" id="loginForm">
           <label for="username">Usuario</label>
-          <input id="username" name="username" autocomplete="username" type="text" required />
+          <div class="login-field">
+            <span aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <circle cx="12" cy="8" r="4"></circle>
+                <path d="M4 21a8 8 0 0 1 16 0"></path>
+              </svg>
+            </span>
+            <input id="username" name="username" autocomplete="username" type="text" placeholder="Ingresa tu usuario" required />
+          </div>
           <label for="password">Contraseña</label>
-          <input id="password" name="password" autocomplete="current-password" type="password" required />
+          <div class="login-field">
+            <span aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+                <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+              </svg>
+            </span>
+            <input id="password" name="password" autocomplete="current-password" type="password" placeholder="Ingresa tu contraseña" required />
+            <button class="password-eye" type="button" aria-label="Mostrar contraseña">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
           <button class="primary-button" type="submit">Ingresar al portal</button>
           <p class="login-state" id="loginState">Acceso demo: estudiante / almalead2026</p>
         </form>
+        <p class="login-footer"><span></span>Academia de liderazgo coherente<span></span></p>
       </div>
     </section>
 
@@ -241,6 +265,6 @@
       </div>
     </div>
 
-    <script src="script.js?v=20260630-login"></script>
+    <script src="script.js?v=20260630-login-cinematic"></script>
   </body>
 </html>

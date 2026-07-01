@@ -149,6 +149,7 @@ const saveState = document.querySelector("#saveState");
 const logoutButton = document.querySelector("#logoutButton");
 const profileButton = document.querySelector(".profile-button");
 const profileName = document.querySelector("#profileName");
+const passwordEye = document.querySelector(".password-eye");
 
 function applySession(user) {
   document.body.classList.remove("auth-locked");
@@ -457,4 +458,11 @@ logoutButton.addEventListener("click", () => {
   loginState.textContent = "Acceso demo: estudiante / almalead2026";
   loginState.className = "login-state";
   document.body.classList.add("auth-locked");
+});
+
+passwordEye.addEventListener("click", () => {
+  const passwordInput = document.querySelector("#password");
+  const isVisible = passwordInput.type === "text";
+  passwordInput.type = isVisible ? "password" : "text";
+  passwordEye.setAttribute("aria-label", isVisible ? "Mostrar contraseña" : "Ocultar contraseña");
 });
