@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Almalead">
+  <rect width="96" height="96" rx="16" fill="#070707"/>
+  <rect x="5" y="5" width="86" height="86" rx="12" fill="none" stroke="#D4AF37" stroke-width="3"/>
+  <path d="M24 67 39 29h8l15 38h-8l-3-8H35l-3 8h-8Zm14-15h10l-5-14-5 14Zm29 15V29h8v31h16v7H67Z" fill="#F0D987"/>
+</svg>
