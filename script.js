@@ -1,112 +1,112 @@
 const modules = [
   {
     id: "m1",
-    title: "Fundamentos ontologicos y el observador",
-    description: "Lenguaje, emociones y cuerpo como base del observador ontologico.",
-    evaluation: "Mapa personal del observador: lenguaje, emocion y cuerpo.",
+    title: "Fundamentos ontológicos y el observador",
+    description: "Lenguaje, emociones y cuerpo como base del observador ontológico.",
+    evaluation: "Mapa personal del observador: lenguaje, emoción y cuerpo.",
     hours: 1,
     type: "O-L-E-C",
   },
   {
     id: "m2",
     title: "Lenguaje que crea realidad",
-    description: "Actos linguisticos, declaraciones, pedidos, ofertas, promesas y juicios fundados.",
-    evaluation: "Analisis de actos linguisticos en una conversacion real.",
+    description: "Actos lingüísticos, declaraciones, pedidos, ofertas, promesas y juicios fundados.",
+    evaluation: "Análisis de actos lingüísticos en una conversación real.",
     hours: 1,
-    type: "Ontologia",
+    type: "Ontología",
   },
   {
     id: "m3",
-    title: "Emocion y cuerpo",
-    description: "Apertura al aprendizaje, estados emocionales y corporalidad que habilita accion.",
-    evaluation: "Bitacora de estados emocionales y practica corporal aplicada.",
+    title: "Emoción y cuerpo",
+    description: "Apertura al aprendizaje, estados emocionales y corporalidad que habilita acción.",
+    evaluation: "Bitácora de estados emocionales y práctica corporal aplicada.",
     hours: 1,
     type: "Emocional",
   },
   {
     id: "m4",
-    title: "Diseno de futuro y coordinacion de acciones",
+    title: "Diseño de futuro y coordinación de acciones",
     description: "Acciones sostenibles, compromisos, promesas cumplidas e indicadores simples.",
-    evaluation: "Diseno de futuro con promesas, pedidos y acciones medibles.",
+    evaluation: "Diseño de futuro con promesas, pedidos y acciones medibles.",
     hours: 1,
-    type: "Accion",
+    type: "Acción",
   },
   {
     id: "m5",
     title: "Escucha profunda y feedback que transforma",
-    description: "Conversaciones poderosas, retroalimentacion y cuidado del vinculo.",
+    description: "Conversaciones poderosas, retroalimentación y cuidado del vínculo.",
     evaluation: "Registro de feedback y escucha profunda en role play.",
     hours: 1,
-    type: "Conversacion",
+    type: "Conversación",
   },
   {
     id: "m6",
-    title: "PNL etica al servicio del proceso",
-    description: "Anclajes y reencuadres usados con responsabilidad dentro del acompanamiento.",
-    evaluation: "Caso breve con reencuadre o anclaje usado eticamente.",
+    title: "PNL ética al servicio del proceso",
+    description: "Anclajes y reencuadres usados con responsabilidad dentro del acompañamiento.",
+    evaluation: "Caso breve con reencuadre o anclaje usado éticamente.",
     hours: 1,
     type: "Herramientas",
   },
   {
     id: "m7",
     title: "Coaching emocional aplicado",
-    description: "Ansiedad, estres, limites y gestion emocional dentro del marco del coaching.",
-    evaluation: "Plan de acompanamiento emocional con limites y derivacion responsable.",
+    description: "Ansiedad, estrés, límites y gestión emocional dentro del marco del coaching.",
+    evaluation: "Plan de acompañamiento emocional con límites y derivación responsable.",
     hours: 1,
-    type: "Aplicacion",
+    type: "Aplicación",
   },
   {
     id: "m8",
     title: "Coaching educativo",
-    description: "Habitos, aprendizaje, evaluacion y acompanamiento de procesos formativos.",
-    evaluation: "Diseno de habito o ruta de aprendizaje con indicadores.",
+    description: "Hábitos, aprendizaje, evaluación y acompañamiento de procesos formativos.",
+    evaluation: "Diseño de hábito o ruta de aprendizaje con indicadores.",
     hours: 1,
     type: "Educativo",
   },
   {
     id: "m9",
-    title: "Etica profesional y consentimiento informado",
-    description: "Limites del coaching, consentimiento informado y derivacion responsable.",
-    evaluation: "Entrega de consentimiento informado y analisis de limites.",
+    title: "Ética profesional y consentimiento informado",
+    description: "Límites del coaching, consentimiento informado y derivación responsable.",
+    evaluation: "Entrega de consentimiento informado y análisis de límites.",
     hours: 1,
-    type: "Etica",
+    type: "Ética",
   },
   {
     id: "m10",
-    title: "Practica supervisada I",
-    description: "Casos guiados, role plays, grabaciones y retroalimentacion supervisada.",
-    evaluation: "Grabacion de caso guiado con autoevaluacion y feedback.",
+    title: "Práctica supervisada I",
+    description: "Casos guiados, role plays, grabaciones y retroalimentación supervisada.",
+    evaluation: "Grabación de caso guiado con autoevaluación y feedback.",
     hours: 1,
-    type: "Supervision",
+    type: "Supervisión",
   },
   {
     id: "m11",
-    title: "Practica supervisada II",
-    description: "Casos del participante, evidencias y feedback con metricas de progreso.",
-    evaluation: "Caso real del participante con evidencias y metricas.",
+    title: "Práctica supervisada II",
+    description: "Casos del participante, evidencias y feedback con métricas de progreso.",
+    evaluation: "Caso real del participante con evidencias y métricas.",
     hours: 1,
-    type: "Supervision",
+    type: "Supervisión",
   },
   {
     id: "m12",
-    title: "Integracion, evaluacion y certificacion",
-    description: "Evaluacion final, carpeta de entregables y cierre del proceso de certificacion.",
-    evaluation: "Carpeta final de evidencias y evaluacion integradora.",
+    title: "Integración, evaluación y certificación",
+    description: "Evaluación final, carpeta de entregables y cierre del proceso de certificación.",
+    evaluation: "Carpeta final de evidencias y evaluación integradora.",
     hours: 1,
     type: "Cierre",
   },
 ];
 
 const resources = [
-  ["Marco O-L-E-C", "Observador, Lenguaje, Emocion y Cuerpo como eje metodologico.", "Guia"],
-  ["Practica supervisada", "Role plays, grabaciones, feedback y casos reales de la cohorte.", "Lab"],
-  ["Metricas de progreso", "Conversaciones poderosas semanales, promesas cumplidas y acciones diarias de 5 minutos.", "Tablero"],
-  ["Marco etico", "Limites del coaching, consentimiento informado y derivacion responsable.", "PDF"],
+  ["Marco O-L-E-C", "Observador, Lenguaje, Emoción y Cuerpo como eje metodológico.", "Guía"],
+  ["Práctica supervisada", "Role plays, grabaciones, feedback y casos reales de la cohorte.", "Lab"],
+  ["Métricas de progreso", "Conversaciones poderosas semanales, promesas cumplidas y acciones diarias de 5 minutos.", "Tablero"],
+  ["Marco ético", "Límites del coaching, consentimiento informado y derivación responsable.", "PDF"],
 ];
 
 let practices = [
-  ["Role play O-L-E-C", "2026-02-17", "Completada", "Observador, lenguaje, emocion y cuerpo"],
-  ["Grabacion de conversacion poderosa", "2026-03-03", "En revision", "Pendiente de feedback supervisado"],
+  ["Role play O-L-E-C", "2026-02-17", "Completada", "Observador, lenguaje, emoción y cuerpo"],
+  ["Grabación de conversación poderosa", "2026-03-03", "En revisión", "Pendiente de feedback supervisado"],
   ["Caso del participante", "2026-03-17", "Pendiente", "Subir consentimiento informado"],
 ];
 
@@ -151,7 +151,7 @@ function getModuleStatus(moduleId) {
 function getStatusLabel(status) {
   const labels = {
     approved: "Aprobado",
-    submitted: "Evaluacion enviada",
+    submitted: "Evaluación enviada",
     available: "Disponible",
     locked: "Bloqueado",
   };
@@ -203,15 +203,15 @@ function renderModules() {
         <h3>${module.title}</h3>
         <p>${module.description}</p>
         <div class="module-meta">
-          <span class="pill">Modulo ${modules.findIndex((item) => item.id === module.id) + 1}</span>
+          <span class="pill">Módulo ${modules.findIndex((item) => item.id === module.id) + 1}</span>
           <span class="pill">${module.type}</span>
           <span class="pill">${getStatusLabel(status)}</span>
         </div>
       </div>
       <div class="module-actions">
-        <strong>${done ? "100%" : status === "submitted" ? "En revision" : status === "available" ? "Abierto" : "Cerrado"}</strong>
+        <strong>${done ? "100%" : status === "submitted" ? "En revisión" : status === "available" ? "Abierto" : "Cerrado"}</strong>
         <button class="ghost-button module-submit" type="button" data-submit-module="${module.id}" ${status === "locked" || status === "approved" || status === "submitted" ? "disabled" : ""}>
-          Enviar evaluacion
+          Enviar evaluación
         </button>
       </div>
     `;
@@ -227,7 +227,7 @@ function renderEvaluations() {
       return `
         <article class="evaluation-card ${status}">
           <div>
-            <span class="pill">Modulo ${index + 1}</span>
+            <span class="pill">Módulo ${index + 1}</span>
             <h3>${module.title}</h3>
             <p>${module.evaluation}</p>
           </div>
@@ -260,7 +260,7 @@ function renderResources() {
 function renderPractices() {
   practiceRows.innerHTML = practices
     .map(([activity, date, status, note]) => {
-      const className = status === "Completada" ? "done" : status === "En revision" ? "review" : "pending";
+      const className = status === "Completada" ? "done" : status === "En revisión" ? "review" : "pending";
       return `
         <tr>
           <td>${activity}</td>
@@ -277,11 +277,11 @@ function renderCertification() {
   const { completedHours, totalHours, blended } = calculateProgress();
   const donePractices = practices.filter((practice) => practice[2] === "Completada").length;
   const items = [
-    ["12 modulos completados", completedHours >= totalHours],
-    ["Asistencia minima 80-85%", completedHours >= 10],
-    ["12 practicas documentadas", donePractices >= 12],
-    ["Bitacora reflexiva activa", reflection.value.trim().length > 20],
-    ["Evaluacion final habilitada", blended >= 85],
+    ["12 módulos aprobados", completedHours >= totalHours],
+    ["Asistencia mínima 80-85%", completedHours >= 10],
+    ["12 prácticas documentadas", donePractices >= 12],
+    ["Bitácora reflexiva activa", reflection.value.trim().length > 20],
+    ["Evaluación final habilitada", blended >= 85],
   ];
 
   certChecklist.innerHTML = items
@@ -313,7 +313,7 @@ function renderApprovals() {
       const canApprove = status === "submitted";
       return `
         <tr>
-          <td>Modulo ${index + 1}: ${module.title}</td>
+          <td>Módulo ${index + 1}: ${module.title}</td>
           <td>${module.evaluation}</td>
           <td><span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span></td>
           <td>
@@ -377,7 +377,7 @@ document.addEventListener("click", (event) => {
 
 document.querySelector("#saveReflection").addEventListener("click", () => {
   localStorage.setItem("almalead.reflection", reflection.value);
-  saveState.textContent = "Bitacora guardada en este navegador.";
+  saveState.textContent = "Bitácora guardada en este navegador.";
   renderCertification();
 });
 
@@ -385,14 +385,14 @@ document.querySelector("#addPractice").addEventListener("click", () => {
   const next = practices.length + 1;
   practices = [
     ...practices,
-    [`Evidencia registrada ${next}`, new Date().toISOString().slice(0, 10), "En revision", "Pendiente de feedback academico"],
+    [`Evidencia registrada ${next}`, new Date().toISOString().slice(0, 10), "En revisión", "Pendiente de feedback académico"],
   ];
   renderAll();
 });
 
 document.querySelector("#exportSnapshot").addEventListener("click", async (event) => {
   const { completedHours, totalHours, blended } = calculateProgress();
-  const snapshot = `Almalead - resumen academico\nAvance: ${blended}%\nModulos: ${completedHours}/${totalHours}\nPracticas: ${practices.length}\nEstado: ${certStatus.textContent}`;
+  const snapshot = `Almalead - resumen académico\nAvance: ${blended}%\nMódulos: ${completedHours}/${totalHours}\nPrácticas: ${practices.length}\nEstado: ${certStatus.textContent}`;
   try {
     await navigator.clipboard.writeText(snapshot);
     event.target.textContent = "Resumen copiado";
