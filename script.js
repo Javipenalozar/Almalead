@@ -152,7 +152,7 @@ const defaultPreEnrollments = [
     email: "estudiante@almalead.com",
     name: "Estudiante Almalead",
     initials: "EA",
-    cohort: "Certificación Coaching 2026",
+    cohort: "Certificación en Coaching 2026",
     status: "pending",
   },
 ];
