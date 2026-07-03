@@ -97,6 +97,34 @@ const modules = [
   },
 ];
 
+const cohortSchedule = {
+  startsOn: "2026-04-21",
+  classWeekday: "martes",
+  classTime: "7:00 p. m.",
+  timezone: "America/Bogota",
+};
+
+const moduleSchedule = [
+  ["2026-04-28", "2026-04-29T00:00:00-05:00"],
+  ["2026-05-05", "2026-05-06T00:00:00-05:00"],
+  ["2026-05-12", "2026-05-13T00:00:00-05:00"],
+  ["2026-05-19", "2026-05-20T00:00:00-05:00"],
+  ["2026-05-26", "2026-05-27T00:00:00-05:00"],
+  ["2026-06-02", "2026-06-03T00:00:00-05:00"],
+  ["2026-06-09", "2026-06-10T00:00:00-05:00"],
+  ["2026-06-16", "2026-06-17T00:00:00-05:00"],
+  ["2026-06-23", "2026-06-24T00:00:00-05:00"],
+  ["2026-06-30", "2026-07-01T00:00:00-05:00"],
+  ["2026-07-07", "2026-07-08T00:00:00-05:00"],
+  ["2026-07-14", "2026-07-15T00:00:00-05:00"],
+];
+
+modules.forEach((module, index) => {
+  const [classDate, unlockAt] = moduleSchedule[index];
+  module.classDate = classDate;
+  module.unlockAt = unlockAt;
+});
+
 const resources = [
   ["Marco O-L-E-C", "Observador, Lenguaje, Emoción y Cuerpo como eje metodológico.", "Guía"],
   ["Práctica supervisada", "Prácticas de rol, grabaciones, retroalimentación y casos reales de la cohorte.", "Laboratorio"],
@@ -105,16 +133,17 @@ const resources = [
 ];
 
 let practices = [
-  ["Práctica de rol O-L-E-C", "2026-02-17", "Completada", "Observador, lenguaje, emoción y cuerpo"],
-  ["Grabación de conversación poderosa", "2026-03-03", "En revisión", "Pendiente de retroalimentación supervisada"],
-  ["Caso del participante", "2026-03-17", "Pendiente", "Subir consentimiento informado"],
+  ["Práctica de rol O-L-E-C", "2026-05-06", "Completada", "Observador, lenguaje, emoción y cuerpo"],
+  ["Grabación de conversación poderosa", "2026-05-20", "En revisión", "Pendiente de retroalimentación supervisada"],
+  ["Caso del participante", "2026-06-03", "Pendiente", "Subir consentimiento informado"],
 ];
 
 const calendarEvents = [
-  ["Jue 12", "Supervisión grupal", "Mariana Torres · 9:00 a. m.", "En vivo"],
-  ["Vie 13", "Entrega módulo 4", "Diseño de futuro y compromisos medibles", "Entrega"],
-  ["Mar 17", "Laboratorio de escucha", "Práctica de rol supervisada · 7:00 p. m.", "Práctica"],
-  ["Sáb 21", "Retroalimentación individual", "Revisión de bitácora O-L-E-C", "Mentoría"],
+  ["Mar 21 abr", "Inicio de cohorte", "Bienvenida y encuadre del proceso · 7:00 p. m.", "Apertura"],
+  ["Mar 28 abr", "Módulo 1", "Fundamentos ontológicos y el observador · 7:00 p. m.", "Clase"],
+  ["Mié 29 abr", "Activación módulo 1", "Disponible desde las 00:00 h", "Aula"],
+  ["Mar 7 jul", "Módulo 11", "Práctica supervisada II · 7:00 p. m.", "Clase"],
+  ["Mié 8 jul", "Activación módulo 11", "Disponible desde las 00:00 h", "Aula"],
 ];
 
 const lessons = [
@@ -194,7 +223,7 @@ if (!state.approvals) {
   state.approvals = Object.fromEntries(
     modules.map((module, index) => {
       const legacyApproved = completed.includes(module.id);
-      return [module.id, legacyApproved ? "approved" : index === 0 ? "available" : "locked"];
+      return [module.id, legacyApproved ? "approved" : "locked"];
     }),
   );
 }
@@ -271,8 +300,30 @@ function persistRoster() {
   localStorage.setItem("almalead.staff", JSON.stringify(state.staff));
 }
 
+function formatDate(dateInput, options = {}) {
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "numeric",
+    month: "short",
+    timeZone: cohortSchedule.timezone,
+    ...options,
+  }).format(new Date(`${dateInput}T12:00:00-05:00`));
+}
+
+function formatUnlockDate(unlockAt) {
+  const date = unlockAt.slice(0, 10);
+  return `${formatDate(date, { weekday: "short" })} · 00:00 h`;
+}
+
+function isModuleUnlocked(module) {
+  return new Date(module.unlockAt).getTime() <= Date.now();
+}
+
 function getModuleStatus(moduleId) {
-  return state.approvals[moduleId] || "locked";
+  const module = modules.find((item) => item.id === moduleId);
+  const savedStatus = state.approvals[moduleId] || "locked";
+  if (!module) return savedStatus;
+  if (savedStatus === "approved" || savedStatus === "submitted") return savedStatus;
+  return isModuleUnlocked(module) ? "available" : "locked";
 }
 
 function getStatusLabel(status) {
@@ -286,14 +337,13 @@ function getStatusLabel(status) {
 }
 
 function syncUnlockedModules() {
-  modules.forEach((module, index) => {
-    const status = getModuleStatus(module.id);
-    const previous = modules[index - 1];
-    if (index === 0 && status === "locked") {
+  modules.forEach((module) => {
+    const savedStatus = state.approvals[module.id] || "locked";
+    if (savedStatus === "approved" || savedStatus === "submitted") return;
+    if (isModuleUnlocked(module)) {
       state.approvals[module.id] = "available";
-    }
-    if (previous && getModuleStatus(previous.id) === "approved" && status === "locked") {
-      state.approvals[module.id] = "available";
+    } else {
+      state.approvals[module.id] = "locked";
     }
   });
 }
@@ -332,6 +382,8 @@ function renderModules() {
         <div class="module-meta">
           <span class="pill">Módulo ${modules.findIndex((item) => item.id === module.id) + 1}</span>
           <span class="pill">${module.type}</span>
+          <span class="pill">Clase ${formatDate(module.classDate)}</span>
+          <span class="pill">Activa ${formatUnlockDate(module.unlockAt)}</span>
           <span class="pill">${getStatusLabel(status)}</span>
         </div>
       </div>
@@ -355,6 +407,7 @@ function renderEvaluations() {
         <article class="evaluation-card ${status}">
           <div>
             <span class="pill">Módulo ${index + 1}</span>
+            <span class="pill">Disponible ${formatUnlockDate(module.unlockAt)}</span>
             <h3>${module.title}</h3>
             <p>${module.evaluation}</p>
           </div>

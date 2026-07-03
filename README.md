@@ -114,6 +114,27 @@ SUPABASE_ANON_KEY=...
 
 La siguiente etapa de codigo es reemplazar el login demo y el `localStorage` por Supabase Auth y consultas reales a estas tablas.
 
+### Calendario de cohorte
+
+La cohorte inicia el 21 de abril de 2026. Las clases son todos los martes a las 7:00 p. m. El módulo 1 se dicta el 28 de abril de 2026.
+
+Cada módulo queda habilitado para el estudiante el miércoles siguiente a la clase, a las 00:00 h de Colombia.
+
+| Módulo | Clase | Activación |
+| --- | --- | --- |
+| 1 | 28 de abril de 2026 | 29 de abril de 2026, 00:00 h |
+| 2 | 5 de mayo de 2026 | 6 de mayo de 2026, 00:00 h |
+| 3 | 12 de mayo de 2026 | 13 de mayo de 2026, 00:00 h |
+| 4 | 19 de mayo de 2026 | 20 de mayo de 2026, 00:00 h |
+| 5 | 26 de mayo de 2026 | 27 de mayo de 2026, 00:00 h |
+| 6 | 2 de junio de 2026 | 3 de junio de 2026, 00:00 h |
+| 7 | 9 de junio de 2026 | 10 de junio de 2026, 00:00 h |
+| 8 | 16 de junio de 2026 | 17 de junio de 2026, 00:00 h |
+| 9 | 23 de junio de 2026 | 24 de junio de 2026, 00:00 h |
+| 10 | 30 de junio de 2026 | 1 de julio de 2026, 00:00 h |
+| 11 | 7 de julio de 2026 | 8 de julio de 2026, 00:00 h |
+| 12 | 14 de julio de 2026 | 15 de julio de 2026, 00:00 h |
+
 ### Registro de estudiantes
 
 Flujo recomendado:
