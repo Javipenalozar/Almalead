@@ -306,27 +306,32 @@ body:not(.auth-locked) .login-screen {
 
 .auth-actions {
   position: absolute;
-  left: 50%;
-  bottom: clamp(76px, 10.6vh, 112px);
+  top: clamp(18px, 3.4vh, 34px);
+  right: clamp(18px, 4vw, 62px);
   z-index: 4;
   display: flex;
-  gap: clamp(18px, 3.3vw, 44px);
-  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
   justify-content: center;
-  width: min(44rem, calc(100vw - 40px));
-  transform: translateX(-50%);
+  width: auto;
 }
 
 .auth-actions button {
-  border: 0;
-  background: transparent;
-  color: rgba(255, 247, 223, 0.58);
-  font-size: clamp(0.68rem, 0.9vw, 0.8rem);
+  min-height: 32px;
+  border: 1px solid rgba(240, 217, 135, 0.18);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 247, 223, 0.72);
+  font-size: clamp(0.64rem, 0.82vw, 0.76rem);
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;
-  text-shadow: 0 0 18px rgba(0, 0, 0, 0.84);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  text-shadow: 0 0 16px rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
 }
 
 .auth-actions button:hover {
@@ -1863,18 +1868,14 @@ textarea {
   .auth-actions {
     top: 16px;
     right: 16px;
-    bottom: auto;
-    left: auto;
-    width: auto;
-    flex-direction: column;
-    align-items: flex-end;
     gap: 7px;
-    transform: none;
   }
 
   .auth-actions button {
-    font-size: 0.64rem;
-    letter-spacing: 0.1em;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 0.6rem;
+    letter-spacing: 0.07em;
   }
 
   .login-form {

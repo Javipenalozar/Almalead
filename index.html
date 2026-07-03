@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Almalead | Plataforma Académica</title>
-    <link rel="stylesheet" href="styles.css?v=20260703-roster" />
+    <link rel="stylesheet" href="styles.css?v=20260703-mobile-copyfix" />
   </head>
   <body class="auth-locked">
     <section class="login-screen" id="loginScreen" aria-label="Ingreso a Almalead">
@@ -92,7 +92,7 @@
         <div class="brand">
           <img class="brand-logo" src="assets/logo-almalead-transparent.png" alt="Almalead" />
           <div>
-            <p>Certificación Coaching</p>
+            <p>Certificación en Coaching</p>
             <span>Academia de liderazgo coherente</span>
           </div>
         </div>
@@ -132,7 +132,7 @@
             <button class="icon-button" type="button" title="Notificaciones">!</button>
             <button class="profile-button" type="button">
               <span>JP</span>
-              <span id="profileName">Javier Peñalozar</span>
+              <span id="profileName">Javier Peñaloza</span>
             </button>
             <button class="ghost-button" type="button" id="logoutButton">Salir</button>
           </div>
@@ -141,9 +141,9 @@
         <section id="resumen" class="summary-grid">
           <article class="progress-hero">
             <div>
-              <p class="eyebrow">Academia de coaching Almalead</p>
+              <p class="eyebrow">Academia de Coaching Almalead</p>
               <h2>Conversaciones que crean futuro</h2>
-              <p>Entrena competencias reales de coaching basadas en ontología del lenguaje, psicología y neurociencia aplicada.</p>
+            <p>Entrena competencias reales de coaching basadas en ontología del lenguaje, psicología y neurociencia aplicada.</p>
             </div>
             <div class="radial-progress" aria-label="Progreso total">
               <span id="overallProgress">0%</span>
@@ -158,7 +158,7 @@
           <article class="metric-card">
             <span>Prácticas registradas</span>
             <strong id="practiceCount">0/12</strong>
-            <p>Role plays, grabaciones y casos supervisados.</p>
+            <p>Prácticas de rol, grabaciones y casos supervisados.</p>
           </article>
           <article class="metric-card">
             <span>Estado</span>
@@ -341,7 +341,7 @@
             </article>
             <article>
               <span>Modalidad</span>
-              <strong>Hibrida</strong>
+              <strong>Híbrida</strong>
             </article>
             <article>
               <span>Duración</span>
@@ -383,7 +383,7 @@
                   Módulo
                   <select>
                     <option>Diseño de futuro y coordinación de acciones</option>
-                    <option>Escucha profunda y feedback que transforma</option>
+                    <option>Escucha profunda y retroalimentación transformadora</option>
                     <option>Práctica supervisada I</option>
                   </select>
                 </label>
@@ -406,7 +406,7 @@
               </label>
               <div class="upload-dropzone">
                 <strong>Adjuntar examen base</strong>
-                <span>PDF, Word, PowerPoint, Excel, imagen, ZIP o enlace externo</span>
+                <span>PDF, Word, PowerPoint, Excel, imagen, ZIP o enlace externo.</span>
                 <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*" />
               </div>
               <div class="admin-actions">
@@ -419,7 +419,7 @@
               <div class="panel-heading">
                 <div>
                   <p class="eyebrow">Evidencias</p>
-                  <h3>Subidas permitidas</h3>
+                  <h3>Formatos permitidos</h3>
                 </div>
                 <span class="pill">Supabase Storage</span>
               </div>
@@ -432,7 +432,7 @@
               <div class="submission-list">
                 <article class="submission-card">
                   <div>
-                    <strong>Grabación role play</strong>
+                    <strong>Grabación de práctica de rol</strong>
                     <span>Mariana R. - Módulo 5 - video/mp4</span>
                   </div>
                   <button class="ghost-button" type="button">Revisar</button>
@@ -537,7 +537,7 @@
                   <select name="role">
                     <option value="coach">Coach</option>
                     <option value="professor">Profesor</option>
-                    <option value="admin">Admin</option>
+                    <option value="admin">Administrador</option>
                   </select>
                 </label>
                 <label>
@@ -545,7 +545,7 @@
                   <input name="assignment" type="text" value="Módulos 1-4 y mentorías" required />
                 </label>
                 <button class="primary-button" type="submit">Crear invitación</button>
-                <p class="admin-inline-state" id="staffState">En producción se enviará invitación segura por Supabase Auth.</p>
+                <p class="admin-inline-state" id="staffState">En producción se enviará una invitación segura por Supabase Auth.</p>
               </form>
               <div class="admin-list" id="staffList"></div>
             </section>
@@ -567,6 +567,6 @@
       </div>
     </div>
 
-    <script src="script.js?v=20260703-roster"></script>
+    <script src="script.js?v=20260703-mobile-copyfix"></script>
   </body>
 </html>

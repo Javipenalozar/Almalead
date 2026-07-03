@@ -1,16 +1,16 @@
-# Almalead Plataforma Academica
+# Almalead Plataforma Académica
 
-Plataforma web inicial para alojar la estructura academica de Almalead, el avance del estudiante, materiales, practicas, bitacora y estado de certificacion.
+Plataforma web inicial para alojar la estructura académica de Almalead, el avance del estudiante, materiales, prácticas, bitácora y estado de certificación.
 
 ## Vista actual
 
 - Panel del estudiante con progreso integral.
-- Ruta academica por modulos y horas.
+- Ruta académica por módulos y horas.
 - Biblioteca de materiales.
-- Bitacora reflexiva con guardado local.
-- Registro de practicas y entregables.
-- Checklist de certificacion.
-- Vista base para direccion academica.
+- Bitácora reflexiva con guardado local.
+- Registro de prácticas y entregables.
+- Checklist de certificación.
+- Vista base para dirección académica.
 - Preinscripcion de estudiantes por documento y correo.
 - Invitacion de profesores, coaches y administradores.
 
@@ -26,11 +26,11 @@ Luego abre:
 http://127.0.0.1:4173/
 ```
 
-## Deploy sugerido en Netlify
+## Deploy Sugerido En Netlify
 
 1. Sube este proyecto al repositorio de GitHub.
 2. En Netlify, crea un nuevo site desde ese repositorio.
-3. En la configuracion de build usa:
+3. En la configuración de build usa:
 
 ```text
 Build command: sin comando
@@ -43,19 +43,19 @@ Publish directory: .
 almalead.javipenalozar.com
 ```
 
-5. Como el subdominio ya esta en Netlify, valida que el DNS apunte al dominio asignado por Netlify:
+5. Como el subdominio ya está en Netlify, valida que el DNS apunte al dominio asignado por Netlify:
 
 ```text
 almalead -> TU_SITE.netlify.app
 ```
 
-Netlify tambien puede generar automaticamente el certificado SSL cuando el DNS ya resuelve correctamente.
+Netlify también puede generar automáticamente el certificado SSL cuando el DNS ya resuelve correctamente.
 
 ## Control de deploys en Netlify
 
-La cuenta tiene un limite mensual de deploys, asi que este proyecto usa una puerta manual para evitar despliegues automaticos innecesarios.
+La cuenta tiene un límite mensual de deploys, así que este proyecto usa una puerta manual para evitar despliegues automáticos innecesarios.
 
-Netlify revisa `scripts/netlify-ignore.js` antes de construir. Por defecto, cualquier commit normal se omite para proteger la cuota. Para publicar en produccion, el mensaje del commit debe incluir una de estas marcas:
+Netlify revisa `scripts/netlify-ignore.js` antes de construir. Por defecto, cualquier commit normal se omite para proteger la cuota. Para publicar en producción, el mensaje del commit debe incluir una de estas marcas:
 
 ```text
 [deploy]
@@ -70,22 +70,22 @@ git commit --allow-empty -m "Publicar Almalead [deploy]"
 git push
 ```
 
-Tambien se puede forzar desde Netlify agregando temporalmente la variable:
+También se puede forzar desde Netlify agregando temporalmente la variable:
 
 ```text
 NETLIFY_FORCE_DEPLOY=true
 ```
 
-Recomendacion operativa: trabajar y revisar localmente; acumular varios cambios; publicar solo cuando una version este aprobada.
+Recomendación operativa: trabajar y revisar localmente; acumular varios cambios; publicar solo cuando una versión esté aprobada.
 
 ## Siguiente fase recomendada
 
 Para pasar de prototipo a plataforma real:
 
 - Autenticacion de estudiantes, mentores y administradores.
-- Base de datos para cohortes, modulos, entregables y progreso.
+- Base de datos para cohortes, módulos, entregables y progreso.
 - Carga privada de materiales PDF, video y documentos.
-- Rubricas, evaluaciones y aprobacion de certificacion.
+- Rúbricas, evaluaciones y aprobación de certificación.
 - Panel administrativo para seguimiento por estudiante.
 
 ## Supabase
@@ -96,7 +96,7 @@ El esquema inicial esta en:
 supabase/schema.sql
 ```
 
-Incluye tablas para perfiles, roles, cohortes, inscripciones, modulos, progreso por estudiante, evaluaciones, practicas, bitacora y materiales. Tambien deja activadas politicas RLS para separar permisos de estudiante, mentor y admin.
+Incluye tablas para perfiles, roles, cohortes, inscripciones, módulos, progreso por estudiante, evaluaciones, prácticas, bitácora y materiales. También deja activadas políticas RLS para separar permisos de estudiante, mentor y admin.
 
 Flujo recomendado:
 
@@ -118,11 +118,11 @@ La siguiente etapa de codigo es reemplazar el login demo y el `localStorage` por
 
 Flujo recomendado:
 
-1. Direccion academica precarga estudiantes en `pre_enrollments` con documento, correo, nombre y cohorte.
+1. Dirección académica precarga estudiantes en `pre_enrollments` con documento, correo, nombre y cohorte.
 2. El estudiante entra por `Crear acceso`.
 3. Ingresa documento y correo registrado.
 4. La app valida contra `validate_pre_enrollment`.
-5. Si coincide, crea usuario en Supabase Auth con correo y contrasena.
+5. Si coincide, crea usuario en Supabase Auth con correo y contraseña.
 6. Se crea/actualiza `profiles`, `enrollments` y el registro de `module_progress`.
 
 El documento no debe usarse como usuario permanente. Solo sirve para validar el primer ingreso.
@@ -131,19 +131,19 @@ El documento no debe usarse como usuario permanente. Solo sirve para validar el 
 
 Flujo recomendado:
 
-1. Direccion academica crea o invita al miembro del equipo desde el panel admin.
-2. Se registra nombre, correo, rol y asignacion academica.
-3. En produccion, Supabase Auth envia la invitacion segura al correo.
+1. Dirección académica crea o invita al miembro del equipo desde el panel admin.
+2. Se registra nombre, correo, rol y asignación académica.
+3. En producción, Supabase Auth envía la invitación segura al correo.
 4. Al aceptar, el perfil queda en `profiles` con rol `coach`, `professor`, `mentor` o `admin`.
-5. El admin puede asignarle estudiantes, modulos, evaluaciones o sesiones de acompanamiento.
+5. El admin puede asignarle estudiantes, módulos, evaluaciones o sesiones de acompañamiento.
 
-Los profesores y coaches no deben tener registro publico. Su acceso nace desde una invitacion interna de la academia.
+Los profesores y coaches no deben tener registro público. Su acceso nace desde una invitación interna de la academia.
 
 ### Evidencias y examenes
 
 El esquema incluye:
 
-- `exams`: evaluaciones creadas por direccion academica.
+- `exams`: evaluaciones creadas por dirección académica.
 - `evidence_files`: archivos subidos por estudiante o admin.
 - bucket privado `almalead-evidence` en Supabase Storage.
 

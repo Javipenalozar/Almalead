@@ -33,9 +33,9 @@ const modules = [
   },
   {
     id: "m5",
-    title: "Escucha profunda y feedback que transforma",
+    title: "Escucha profunda y retroalimentación transformadora",
     description: "Conversaciones poderosas, retroalimentación y cuidado del vínculo.",
-    evaluation: "Registro de feedback y escucha profunda en role play.",
+    evaluation: "Registro de retroalimentación y escucha profunda en una práctica de rol.",
     hours: 1,
     type: "Conversación",
   },
@@ -74,15 +74,15 @@ const modules = [
   {
     id: "m10",
     title: "Práctica supervisada I",
-    description: "Casos guiados, role plays, grabaciones y retroalimentación supervisada.",
-    evaluation: "Grabación de caso guiado con autoevaluación y feedback.",
+    description: "Casos guiados, prácticas de rol, grabaciones y retroalimentación supervisada.",
+    evaluation: "Grabación de caso guiado con autoevaluación y retroalimentación.",
     hours: 1,
     type: "Supervisión",
   },
   {
     id: "m11",
     title: "Práctica supervisada II",
-    description: "Casos del participante, evidencias y feedback con métricas de progreso.",
+    description: "Casos del participante, evidencias y retroalimentación con métricas de progreso.",
     evaluation: "Caso real del participante con evidencias y métricas.",
     hours: 1,
     type: "Supervisión",
@@ -99,22 +99,22 @@ const modules = [
 
 const resources = [
   ["Marco O-L-E-C", "Observador, Lenguaje, Emoción y Cuerpo como eje metodológico.", "Guía"],
-  ["Práctica supervisada", "Role plays, grabaciones, feedback y casos reales de la cohorte.", "Lab"],
+  ["Práctica supervisada", "Prácticas de rol, grabaciones, retroalimentación y casos reales de la cohorte.", "Laboratorio"],
   ["Métricas de progreso", "Conversaciones poderosas semanales, promesas cumplidas y acciones diarias de 5 minutos.", "Tablero"],
   ["Marco ético", "Límites del coaching, consentimiento informado y derivación responsable.", "PDF"],
 ];
 
 let practices = [
-  ["Role play O-L-E-C", "2026-02-17", "Completada", "Observador, lenguaje, emoción y cuerpo"],
-  ["Grabación de conversación poderosa", "2026-03-03", "En revisión", "Pendiente de feedback supervisado"],
+  ["Práctica de rol O-L-E-C", "2026-02-17", "Completada", "Observador, lenguaje, emoción y cuerpo"],
+  ["Grabación de conversación poderosa", "2026-03-03", "En revisión", "Pendiente de retroalimentación supervisada"],
   ["Caso del participante", "2026-03-17", "Pendiente", "Subir consentimiento informado"],
 ];
 
 const calendarEvents = [
   ["Jue 12", "Supervisión grupal", "Mariana Torres · 9:00 a. m.", "En vivo"],
   ["Vie 13", "Entrega módulo 4", "Diseño de futuro y compromisos medibles", "Entrega"],
-  ["Mar 17", "Laboratorio de escucha", "Role play supervisado · 7:00 p. m.", "Práctica"],
-  ["Sáb 21", "Feedback individual", "Revisión de bitácora O-L-E-C", "Mentoría"],
+  ["Mar 17", "Laboratorio de escucha", "Práctica de rol supervisada · 7:00 p. m.", "Práctica"],
+  ["Sáb 21", "Retroalimentación individual", "Revisión de bitácora O-L-E-C", "Mentoría"],
 ];
 
 const lessons = [
@@ -122,7 +122,7 @@ const lessons = [
   ["Módulo 2", "Actos lingüísticos y juicios", "Clase grabada · plantilla de conversación", 100],
   ["Módulo 3", "Emoción, cuerpo y aprendizaje", "Audio somático · bitácora emocional", 100],
   ["Módulo 4", "Diseño de futuro", "Workbook · caso aplicado · evaluación", 42],
-  ["Módulo 5", "Escucha y feedback", "Role play · rúbrica de escucha", 0],
+  ["Módulo 5", "Escucha y retroalimentación", "Práctica de rol · rúbrica de escucha", 0],
   ["Módulo 6", "PNL ética aplicada", "Lectura · práctica de reencuadre", 0],
 ];
 
@@ -464,7 +464,7 @@ function renderStudents() {
 
 function getRoleLabel(role) {
   const labels = {
-    admin: "Admin",
+    admin: "Administrador",
     coach: "Coach",
     professor: "Profesor",
     mentor: "Mentor",
@@ -646,7 +646,7 @@ document.querySelector("#addPractice").addEventListener("click", () => {
   const next = practices.length + 1;
   practices = [
     ...practices,
-    [`Evidencia registrada ${next}`, new Date().toISOString().slice(0, 10), "En revisión", "Pendiente de feedback académico"],
+    [`Evidencia registrada ${next}`, new Date().toISOString().slice(0, 10), "En revisión", "Pendiente de retroalimentación académica"],
   ];
   renderAll();
 });
