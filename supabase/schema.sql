@@ -3,16 +3,22 @@
 
 create extension if not exists "pgcrypto";
 
-create type public.app_role as enum ('student', 'mentor', 'admin');
+create type public.app_role as enum ('student', 'mentor', 'coach', 'professor', 'admin');
 create type public.progress_status as enum ('locked', 'available', 'submitted', 'approved', 'rejected');
 create type public.practice_status as enum ('pending', 'in_review', 'completed', 'rejected');
 create type public.material_type as enum ('guide', 'pdf', 'video', 'link', 'worksheet');
+create type public.pre_enrollment_status as enum ('pending', 'claimed', 'blocked', 'expired');
+create type public.exam_status as enum ('draft', 'published', 'closed', 'archived');
+create type public.evidence_kind as enum ('text', 'audio', 'video', 'image', 'document', 'compressed', 'mixed');
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
   email text not null unique,
+  document_number text unique,
+  phone text,
   role public.app_role not null default 'student',
+  account_status text not null default 'active',
   avatar_initials text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -26,6 +32,24 @@ create table public.cohorts (
   modality text,
   active boolean not null default true,
   created_at timestamptz not null default now()
+);
+
+create table public.pre_enrollments (
+  id uuid primary key default gen_random_uuid(),
+  cohort_id uuid references public.cohorts(id) on delete set null,
+  full_name text not null,
+  document_number text not null,
+  email text not null,
+  phone text,
+  status public.pre_enrollment_status not null default 'pending',
+  invitation_token text not null default encode(gen_random_bytes(24), 'hex'),
+  claimed_by uuid references public.profiles(id) on delete set null,
+  claimed_at timestamptz,
+  expires_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (document_number),
+  unique (email)
 );
 
 create table public.modules (
@@ -109,6 +133,37 @@ create table public.materials (
   created_at timestamptz not null default now()
 );
 
+create table public.exams (
+  id uuid primary key default gen_random_uuid(),
+  module_id uuid references public.modules(id) on delete set null,
+  cohort_id uuid references public.cohorts(id) on delete set null,
+  title text not null,
+  instructions text not null,
+  due_at timestamptz,
+  status public.exam_status not null default 'draft',
+  allowed_kinds public.evidence_kind[] not null default array['text', 'audio', 'video', 'image', 'document']::public.evidence_kind[],
+  allowed_extensions text[] not null default array['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'zip', 'rar', 'jpg', 'jpeg', 'png', 'webp', 'heic', 'mp3', 'wav', 'm4a', 'aac', 'ogg', 'mp4', 'mov', 'webm', 'm4v'],
+  base_file_url text,
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.evidence_files (
+  id uuid primary key default gen_random_uuid(),
+  submission_id uuid references public.evaluation_submissions(id) on delete cascade,
+  practice_id uuid references public.practices(id) on delete cascade,
+  student_id uuid not null references public.profiles(id) on delete cascade,
+  exam_id uuid references public.exams(id) on delete set null,
+  kind public.evidence_kind not null,
+  storage_bucket text not null default 'almalead-evidence',
+  storage_path text not null,
+  file_name text not null,
+  mime_type text,
+  file_size_bytes bigint,
+  uploaded_at timestamptz not null default now()
+);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -123,6 +178,10 @@ create trigger profiles_updated_at
 before update on public.profiles
 for each row execute function public.set_updated_at();
 
+create trigger pre_enrollments_updated_at
+before update on public.pre_enrollments
+for each row execute function public.set_updated_at();
+
 create trigger module_progress_updated_at
 before update on public.module_progress
 for each row execute function public.set_updated_at();
@@ -133,6 +192,10 @@ for each row execute function public.set_updated_at();
 
 create trigger reflections_updated_at
 before update on public.reflections
+for each row execute function public.set_updated_at();
+
+create trigger exams_updated_at
+before update on public.exams
 for each row execute function public.set_updated_at();
 
 create or replace function public.is_admin()
@@ -161,12 +224,33 @@ as $$
     select 1
     from public.profiles
     where id = auth.uid()
-      and role in ('admin', 'mentor')
+      and role in ('admin', 'mentor', 'coach', 'professor')
   );
+$$;
+
+create or replace function public.validate_pre_enrollment(input_document text, input_email text)
+returns table (can_register boolean, full_name text, cohort_name text)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    true as can_register,
+    pe.full_name,
+    c.name as cohort_name
+  from public.pre_enrollments pe
+  left join public.cohorts c on c.id = pe.cohort_id
+  where pe.document_number = input_document
+    and lower(pe.email) = lower(input_email)
+    and pe.status = 'pending'
+    and (pe.expires_at is null or pe.expires_at > now())
+  limit 1;
 $$;
 
 alter table public.profiles enable row level security;
 alter table public.cohorts enable row level security;
+alter table public.pre_enrollments enable row level security;
 alter table public.modules enable row level security;
 alter table public.enrollments enable row level security;
 alter table public.module_progress enable row level security;
@@ -174,6 +258,8 @@ alter table public.evaluation_submissions enable row level security;
 alter table public.practices enable row level security;
 alter table public.reflections enable row level security;
 alter table public.materials enable row level security;
+alter table public.exams enable row level security;
+alter table public.evidence_files enable row level security;
 
 create policy "Profiles can read themselves"
 on public.profiles for select
@@ -193,6 +279,11 @@ create policy "Admins manage cohorts"
 on public.cohorts for all
 using (public.is_admin())
 with check (public.is_admin());
+
+create policy "Academic staff manage pre enrollments"
+on public.pre_enrollments for all
+using (public.is_academic_staff())
+with check (public.is_academic_staff());
 
 create policy "Signed in users can read published modules"
 on public.modules for select
@@ -313,6 +404,71 @@ create policy "Academic staff manage materials"
 on public.materials for all
 using (public.is_academic_staff())
 with check (public.is_academic_staff());
+
+create policy "Signed in users can read published exams"
+on public.exams for select
+to authenticated
+using (status in ('published', 'closed') or public.is_academic_staff());
+
+create policy "Academic staff manage exams"
+on public.exams for all
+using (public.is_academic_staff())
+with check (public.is_academic_staff());
+
+create policy "Students manage their evidence metadata"
+on public.evidence_files for all
+using (student_id = auth.uid() or public.is_academic_staff())
+with check (student_id = auth.uid() or public.is_academic_staff());
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'almalead-evidence',
+  'almalead-evidence',
+  false,
+  524288000,
+  array[
+    'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'audio/aac', 'audio/ogg',
+    'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v',
+    'image/jpeg', 'image/png', 'image/webp', 'image/heic',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+    'application/zip',
+    'application/x-rar-compressed'
+  ]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+create policy "Students upload own evidence objects"
+on storage.objects for insert
+to authenticated
+with check (
+  bucket_id = 'almalead-evidence'
+  and (storage.foldername(name))[1] = auth.uid()::text
+);
+
+create policy "Students read own evidence objects"
+on storage.objects for select
+to authenticated
+using (
+  bucket_id = 'almalead-evidence'
+  and ((storage.foldername(name))[1] = auth.uid()::text or public.is_academic_staff())
+);
+
+create policy "Academic staff manage evidence objects"
+on storage.objects for all
+to authenticated
+using (bucket_id = 'almalead-evidence' and public.is_academic_staff())
+with check (bucket_id = 'almalead-evidence' and public.is_academic_staff());
 
 insert into public.modules (module_number, title, description, evaluation_prompt, category, estimated_hours)
 values

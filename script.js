@@ -110,9 +110,75 @@ let practices = [
   ["Caso del participante", "2026-03-17", "Pendiente", "Subir consentimiento informado"],
 ];
 
+const calendarEvents = [
+  ["Jue 12", "Supervisión grupal", "Mariana Torres · 9:00 a. m.", "En vivo"],
+  ["Vie 13", "Entrega módulo 4", "Diseño de futuro y compromisos medibles", "Entrega"],
+  ["Mar 17", "Laboratorio de escucha", "Role play supervisado · 7:00 p. m.", "Práctica"],
+  ["Sáb 21", "Feedback individual", "Revisión de bitácora O-L-E-C", "Mentoría"],
+];
+
+const lessons = [
+  ["Módulo 1", "El observador ontológico", "Video · Guía PDF · práctica guiada", 100],
+  ["Módulo 2", "Actos lingüísticos y juicios", "Clase grabada · plantilla de conversación", 100],
+  ["Módulo 3", "Emoción, cuerpo y aprendizaje", "Audio somático · bitácora emocional", 100],
+  ["Módulo 4", "Diseño de futuro", "Workbook · caso aplicado · evaluación", 42],
+  ["Módulo 5", "Escucha y feedback", "Role play · rúbrica de escucha", 0],
+  ["Módulo 6", "PNL ética aplicada", "Lectura · práctica de reencuadre", 0],
+];
+
+const journalEntries = [
+  ["Observador", "Detecté que mi juicio principal aparece cuando el coachee duda de su decisión.", "Hace 2 días"],
+  ["Lenguaje", "Convertí una queja en pedido concreto con condición de satisfacción.", "Hace 5 días"],
+  ["Emoción", "Trabajé apertura al aprendizaje antes de la práctica supervisada.", "Hace 1 semana"],
+];
+
+const evidenceItems = [
+  ["Grabación de conversación", "video/mp4", "Módulo 5", "En revisión"],
+  ["Bitácora emocional", "application/pdf", "Módulo 3", "Aprobada"],
+  ["Audio de práctica", "audio/m4a", "Módulo 2", "Aprobada"],
+  ["Consentimiento informado", "application/pdf", "Módulo 9", "Pendiente"],
+];
+
+const students = [
+  ["Mariana Rojas", "1020304050", "Módulo 5", "En revisión", 38],
+  ["Carlos Méndez", "1002457812", "Módulo 3", "Activo", 25],
+  ["Laura Pérez", "52788441", "Módulo 2", "Aprobado", 18],
+  ["Andrés Gómez", "79881234", "Módulo 1", "Pendiente", 8],
+];
+
+const defaultPreEnrollments = [
+  {
+    document: "1020304050",
+    email: "estudiante@almalead.com",
+    name: "Estudiante Almalead",
+    initials: "EA",
+    cohort: "Certificación Coaching 2026",
+    status: "pending",
+  },
+];
+
+const defaultStaff = [
+  {
+    name: "Mariana Torres",
+    email: "mariana@almalead.com",
+    role: "coach",
+    assignment: "Mentora de cohorte y supervisión grupal",
+    status: "active",
+  },
+  {
+    name: "Dirección Académica",
+    email: "admin@almalead.com",
+    role: "admin",
+    assignment: "Aprobaciones, evaluaciones y certificación",
+    status: "active",
+  },
+];
+
 const state = {
   approvals: JSON.parse(localStorage.getItem("almalead.approvals") || "null"),
   reflection: localStorage.getItem("almalead.reflection") || "",
+  preEnrollments: JSON.parse(localStorage.getItem("almalead.preEnrollments") || "null") || defaultPreEnrollments,
+  staff: JSON.parse(localStorage.getItem("almalead.staff") || "null") || defaultStaff,
   filter: "all",
 };
 
@@ -120,6 +186,8 @@ const demoUsers = {
   estudiante: { password: "almalead2026", name: "Estudiante Almalead", initials: "EA" },
   admin: { password: "admin2026", name: "Dirección Académica", initials: "DA" },
 };
+
+const preEnrollments = state.preEnrollments;
 
 if (!state.approvals) {
   const completed = JSON.parse(localStorage.getItem("almalead.completed") || "[]");
@@ -150,6 +218,21 @@ const logoutButton = document.querySelector("#logoutButton");
 const profileButton = document.querySelector(".profile-button");
 const profileName = document.querySelector("#profileName");
 const passwordEye = document.querySelector(".password-eye");
+const registerForm = document.querySelector("#registerForm");
+const registerState = document.querySelector("#registerState");
+const recoveryForm = document.querySelector("#recoveryForm");
+const recoveryState = document.querySelector("#recoveryState");
+const calendarList = document.querySelector("#calendarList");
+const lessonGrid = document.querySelector("#lessonGrid");
+const journalList = document.querySelector("#journalList");
+const evidenceLibrary = document.querySelector("#evidenceLibrary");
+const studentGrid = document.querySelector("#studentGrid");
+const preEnrollmentForm = document.querySelector("#preEnrollmentForm");
+const preEnrollmentState = document.querySelector("#preEnrollmentState");
+const preEnrollmentList = document.querySelector("#preEnrollmentList");
+const staffForm = document.querySelector("#staffForm");
+const staffState = document.querySelector("#staffState");
+const staffList = document.querySelector("#staffList");
 
 function applySession(user) {
   document.body.classList.remove("auth-locked");
@@ -164,8 +247,28 @@ function restoreSession() {
   if (savedUser) applySession(savedUser);
 }
 
+function openAuthPanel(panelId) {
+  document.querySelectorAll(".auth-panel").forEach((panel) => {
+    const isTarget = panel.id === panelId;
+    panel.classList.toggle("open", isTarget);
+    panel.setAttribute("aria-hidden", String(!isTarget));
+  });
+}
+
+function closeAuthPanels() {
+  document.querySelectorAll(".auth-panel").forEach((panel) => {
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+  });
+}
+
 function persist() {
   localStorage.setItem("almalead.approvals", JSON.stringify(state.approvals));
+}
+
+function persistRoster() {
+  localStorage.setItem("almalead.preEnrollments", JSON.stringify(state.preEnrollments));
+  localStorage.setItem("almalead.staff", JSON.stringify(state.staff));
 }
 
 function getModuleStatus(moduleId) {
@@ -281,6 +384,124 @@ function renderResources() {
     .join("");
 }
 
+function renderCalendar() {
+  calendarList.innerHTML = calendarEvents
+    .map(([day, title, detail, type]) => `
+      <article class="calendar-item">
+        <time>${day}</time>
+        <div>
+          <strong>${title}</strong>
+          <span>${detail}</span>
+        </div>
+        <em>${type}</em>
+      </article>
+    `)
+    .join("");
+}
+
+function renderLessons() {
+  lessonGrid.innerHTML = lessons
+    .map(([moduleName, title, content, progress]) => `
+      <article class="lesson-card">
+        <div>
+          <span class="pill">${moduleName}</span>
+          <h3>${title}</h3>
+          <p>${content}</p>
+        </div>
+        <div class="lesson-progress" style="--lesson-progress: ${progress}">
+          <strong>${progress}%</strong>
+        </div>
+      </article>
+    `)
+    .join("");
+}
+
+function renderJournal() {
+  journalList.innerHTML = journalEntries
+    .map(([dimension, text, date]) => `
+      <article class="journal-card">
+        <span>${dimension}</span>
+        <p>${text}</p>
+        <time>${date}</time>
+      </article>
+    `)
+    .join("");
+}
+
+function renderEvidenceLibrary() {
+  evidenceLibrary.innerHTML = evidenceItems
+    .map(([title, type, moduleName, status]) => {
+      const className = status === "Aprobada" ? "done" : status === "En revisión" ? "review" : "pending";
+      return `
+        <article class="evidence-file">
+          <div class="file-icon">${type.includes("video") ? "▶" : type.includes("audio") ? "♪" : "PDF"}</div>
+          <div>
+            <strong>${title}</strong>
+            <span>${moduleName} · ${type}</span>
+          </div>
+          <span class="status ${className}">${status}</span>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderStudents() {
+  studentGrid.innerHTML = students
+    .map(([name, documentId, moduleName, status, progress]) => `
+      <article class="student-card">
+        <div class="student-avatar">${name.split(" ").map((part) => part[0]).join("").slice(0, 2)}</div>
+        <div>
+          <h3>${name}</h3>
+          <p>Documento ${documentId}</p>
+          <span>${moduleName} · ${status}</span>
+        </div>
+        <strong>${progress}%</strong>
+      </article>
+    `)
+    .join("");
+}
+
+function getRoleLabel(role) {
+  const labels = {
+    admin: "Admin",
+    coach: "Coach",
+    professor: "Profesor",
+    mentor: "Mentor",
+  };
+  return labels[role] || "Equipo";
+}
+
+function renderPreEnrollments() {
+  preEnrollmentList.innerHTML = state.preEnrollments
+    .map((item) => `
+      <article class="admin-list-item">
+        <div>
+          <strong>${item.name}</strong>
+          <span>Documento ${item.document} · ${item.email}</span>
+          <small>${item.cohort}</small>
+        </div>
+        <span class="status ${item.status === "claimed" ? "done" : "review"}">${item.status === "claimed" ? "Acceso creado" : "Pendiente"}</span>
+      </article>
+    `)
+    .join("");
+}
+
+function renderStaff() {
+  staffList.innerHTML = state.staff
+    .map((member) => `
+      <article class="admin-list-item">
+        <div>
+          <strong>${member.name}</strong>
+          <span>${member.email} · ${getRoleLabel(member.role)}</span>
+          <small>${member.assignment}</small>
+        </div>
+        <span class="status ${member.status === "active" ? "done" : "review"}">${member.status === "active" ? "Activo" : "Invitado"}</span>
+      </article>
+    `)
+    .join("");
+}
+
 function renderPractices() {
   practiceRows.innerHTML = practices
     .map(([activity, date, status, note]) => {
@@ -352,16 +573,32 @@ function renderApprovals() {
 }
 
 function renderAll() {
+  renderCalendar();
   renderModules();
+  renderLessons();
   renderEvaluations();
   renderResources();
+  renderJournal();
   renderPractices();
+  renderEvidenceLibrary();
   renderMetrics();
   renderCertification();
+  renderStudents();
+  renderPreEnrollments();
+  renderStaff();
   renderApprovals();
 }
 
 document.addEventListener("click", (event) => {
+  const authOpenButton = event.target.closest("[data-auth-open]");
+  if (authOpenButton) {
+    openAuthPanel(authOpenButton.dataset.authOpen);
+  }
+
+  if (event.target.closest("[data-auth-close]")) {
+    closeAuthPanels();
+  }
+
   const submitButton = event.target.closest("[data-submit-module]");
   if (submitButton && !submitButton.disabled) {
     const moduleId = submitButton.dataset.submitModule;
@@ -428,6 +665,62 @@ document.querySelector("#exportSnapshot").addEventListener("click", async (event
   }, 1600);
 });
 
+preEnrollmentForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const formData = new FormData(preEnrollmentForm);
+  const name = String(formData.get("name") || "").trim();
+  const documentId = String(formData.get("document") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const cohort = String(formData.get("cohort") || "").trim();
+  const exists = state.preEnrollments.some((item) => item.document === documentId || item.email.toLowerCase() === email);
+
+  if (exists) {
+    preEnrollmentState.textContent = "Ya existe una preinscripción con ese documento o correo.";
+    preEnrollmentState.className = "admin-inline-state error";
+    return;
+  }
+
+  state.preEnrollments = [
+    ...state.preEnrollments,
+    {
+      document: documentId,
+      email,
+      name,
+      initials: name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase(),
+      cohort,
+      status: "pending",
+    },
+  ];
+  preEnrollments.length = 0;
+  preEnrollments.push(...state.preEnrollments);
+  persistRoster();
+  preEnrollmentState.textContent = "Preinscripción guardada. El estudiante ya puede crear su acceso.";
+  preEnrollmentState.className = "admin-inline-state success";
+  renderPreEnrollments();
+});
+
+staffForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const formData = new FormData(staffForm);
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const role = String(formData.get("role") || "coach");
+  const assignment = String(formData.get("assignment") || "").trim();
+  const exists = state.staff.some((member) => member.email.toLowerCase() === email);
+
+  if (exists) {
+    staffState.textContent = "Ese correo ya pertenece al equipo académico.";
+    staffState.className = "admin-inline-state error";
+    return;
+  }
+
+  state.staff = [...state.staff, { name, email, role, assignment, status: "invited" }];
+  persistRoster();
+  staffState.textContent = "Invitación creada. En producción se enviará por Supabase Auth.";
+  staffState.className = "admin-inline-state success";
+  renderStaff();
+});
+
 reflection.value = state.reflection;
 renderAll();
 restoreSession();
@@ -450,6 +743,52 @@ loginForm.addEventListener("submit", (event) => {
   loginState.textContent = "Acceso aprobado. Entrando al portal...";
   loginState.className = "login-state success";
   applySession(sessionUser);
+});
+
+registerForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const formData = new FormData(registerForm);
+  const documentId = String(formData.get("document") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const confirm = String(formData.get("confirm") || "");
+  const preEnrollment = preEnrollments.find(
+    (item) => item.document === documentId && item.email.toLowerCase() === email,
+  );
+
+  if (!preEnrollment) {
+    registerState.textContent = "No encontramos una preinscripción con ese documento y correo.";
+    registerState.className = "auth-panel-state error";
+    return;
+  }
+
+  if (password !== confirm) {
+    registerState.textContent = "Las contraseñas no coinciden.";
+    registerState.className = "auth-panel-state error";
+    return;
+  }
+
+  demoUsers[email] = {
+    password,
+    name: preEnrollment.name,
+    initials: preEnrollment.initials,
+  };
+  preEnrollment.status = "claimed";
+  state.preEnrollments = [...preEnrollments];
+  persistRoster();
+  renderPreEnrollments();
+  registerState.textContent = "Acceso activado. Ya puedes ingresar con tu correo y contraseña.";
+  registerState.className = "auth-panel-state success";
+});
+
+recoveryForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const email = String(new FormData(recoveryForm).get("email") || "").trim().toLowerCase();
+  const isKnown = Boolean(demoUsers[email]) || preEnrollments.some((item) => item.email.toLowerCase() === email);
+  recoveryState.textContent = isKnown
+    ? "En producción enviaremos el enlace seguro de recuperación a tu correo."
+    : "Si el correo existe en Almalead, recibirá instrucciones de recuperación.";
+  recoveryState.className = "auth-panel-state success";
 });
 
 logoutButton.addEventListener("click", () => {

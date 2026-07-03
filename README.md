@@ -11,6 +11,8 @@ Plataforma web inicial para alojar la estructura academica de Almalead, el avanc
 - Registro de practicas y entregables.
 - Checklist de certificacion.
 - Vista base para direccion academica.
+- Preinscripcion de estudiantes por documento y correo.
+- Invitacion de profesores, coaches y administradores.
 
 ## Probar localmente
 
@@ -102,7 +104,7 @@ Flujo recomendado:
 2. Abrir `SQL Editor`.
 3. Pegar y ejecutar el contenido de `supabase/schema.sql`.
 4. Crear usuarios desde `Authentication`.
-5. Insertar o actualizar el perfil de cada usuario en `profiles` con rol `student`, `mentor` o `admin`.
+5. Insertar o actualizar el perfil de cada usuario en `profiles` con rol `student`, `mentor`, `coach`, `professor` o `admin`.
 6. Guardar en Netlify las variables publicas del frontend:
 
 ```text
@@ -111,3 +113,46 @@ SUPABASE_ANON_KEY=...
 ```
 
 La siguiente etapa de codigo es reemplazar el login demo y el `localStorage` por Supabase Auth y consultas reales a estas tablas.
+
+### Registro de estudiantes
+
+Flujo recomendado:
+
+1. Direccion academica precarga estudiantes en `pre_enrollments` con documento, correo, nombre y cohorte.
+2. El estudiante entra por `Crear acceso`.
+3. Ingresa documento y correo registrado.
+4. La app valida contra `validate_pre_enrollment`.
+5. Si coincide, crea usuario en Supabase Auth con correo y contrasena.
+6. Se crea/actualiza `profiles`, `enrollments` y el registro de `module_progress`.
+
+El documento no debe usarse como usuario permanente. Solo sirve para validar el primer ingreso.
+
+### Registro de profesores y coaches
+
+Flujo recomendado:
+
+1. Direccion academica crea o invita al miembro del equipo desde el panel admin.
+2. Se registra nombre, correo, rol y asignacion academica.
+3. En produccion, Supabase Auth envia la invitacion segura al correo.
+4. Al aceptar, el perfil queda en `profiles` con rol `coach`, `professor`, `mentor` o `admin`.
+5. El admin puede asignarle estudiantes, modulos, evaluaciones o sesiones de acompanamiento.
+
+Los profesores y coaches no deben tener registro publico. Su acceso nace desde una invitacion interna de la academia.
+
+### Evidencias y examenes
+
+El esquema incluye:
+
+- `exams`: evaluaciones creadas por direccion academica.
+- `evidence_files`: archivos subidos por estudiante o admin.
+- bucket privado `almalead-evidence` en Supabase Storage.
+
+Formatos previstos:
+
+```text
+Audio: mp3, wav, m4a, aac, ogg
+Video: mp4, mov, webm, m4v
+Imagen: jpg, jpeg, png, webp, heic
+Documentos: pdf, doc, docx, ppt, pptx, xls, xlsx, txt
+Comprimidos: zip, rar
+```

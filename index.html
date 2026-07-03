@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Almalead | Plataforma Académica</title>
-    <link rel="stylesheet" href="styles.css?v=20260630-login-cinematic" />
+    <link rel="stylesheet" href="styles.css?v=20260703-roster" />
   </head>
   <body class="auth-locked">
     <section class="login-screen" id="loginScreen" aria-label="Ingreso a Almalead">
@@ -49,6 +49,40 @@
           <button class="primary-button" type="submit">Ingresar al portal</button>
           <p class="login-state" id="loginState">Acceso demo: estudiante / almalead2026</p>
         </form>
+        <div class="auth-actions">
+          <button type="button" data-auth-open="registerPanel">Crear acceso</button>
+          <button type="button" data-auth-open="recoveryPanel">Recuperar contraseña</button>
+        </div>
+        <section class="auth-panel" id="registerPanel" aria-hidden="true">
+          <button class="auth-close" type="button" data-auth-close>×</button>
+          <p class="eyebrow">Primer ingreso</p>
+          <h2>Crear acceso</h2>
+          <p>Validamos tu documento y correo registrados por la academia antes de crear tu contraseña.</p>
+          <form id="registerForm" class="auth-panel-form">
+            <label for="registerDocument">Número de documento</label>
+            <input id="registerDocument" name="document" inputmode="numeric" autocomplete="off" required />
+            <label for="registerEmail">Correo registrado</label>
+            <input id="registerEmail" name="email" type="email" autocomplete="email" required />
+            <label for="registerPassword">Crear contraseña</label>
+            <input id="registerPassword" name="password" type="password" autocomplete="new-password" minlength="8" required />
+            <label for="registerConfirm">Confirmar contraseña</label>
+            <input id="registerConfirm" name="confirm" type="password" autocomplete="new-password" minlength="8" required />
+            <button class="primary-button" type="submit">Activar acceso</button>
+            <p class="auth-panel-state" id="registerState">Demo: documento 1020304050 + estudiante@almalead.com</p>
+          </form>
+        </section>
+        <section class="auth-panel" id="recoveryPanel" aria-hidden="true">
+          <button class="auth-close" type="button" data-auth-close>×</button>
+          <p class="eyebrow">Seguridad</p>
+          <h2>Recuperar contraseña</h2>
+          <p>En producción enviaremos un enlace seguro al correo registrado en Supabase Auth.</p>
+          <form id="recoveryForm" class="auth-panel-form">
+            <label for="recoveryEmail">Correo registrado</label>
+            <input id="recoveryEmail" name="email" type="email" autocomplete="email" required />
+            <button class="primary-button" type="submit">Enviar enlace</button>
+            <p class="auth-panel-state" id="recoveryState">El enlace solo se enviará si el correo está registrado.</p>
+          </form>
+        </section>
         <p class="login-footer"><span></span>Academia de liderazgo coherente<span></span></p>
       </div>
     </section>
@@ -65,11 +99,16 @@
 
         <nav class="nav-list">
           <a href="#resumen" class="active">Resumen</a>
+          <a href="#calendario">Calendario</a>
           <a href="#ruta">Ruta académica</a>
+          <a href="#lecciones">Lecciones</a>
           <a href="#evaluaciones">Evaluaciones</a>
+          <a href="#bitacora">Bitácora</a>
           <a href="#materiales">Materiales</a>
           <a href="#practicas">Prácticas</a>
+          <a href="#evidencias">Evidencias</a>
           <a href="#certificacion">Certificación</a>
+          <a href="#estudiantes">Estudiantes</a>
           <a href="#admin">Dirección académica</a>
         </nav>
 
@@ -128,6 +167,28 @@
           </article>
         </section>
 
+        <section id="calendario" class="content-band calendar-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Agenda de cohorte</p>
+              <h2>Calendario académico</h2>
+            </div>
+            <button class="ghost-button" type="button">Sincronizar agenda</button>
+          </div>
+          <div class="calendar-layout">
+            <article class="calendar-focus">
+              <span>Próxima sesión</span>
+              <strong>Supervisión grupal</strong>
+              <p>Jueves 9:00 a. m. · Sala virtual Almalead · Mariana Torres</p>
+              <div class="calendar-meta">
+                <span>Entrega módulo 4</span>
+                <span>48 h restantes</span>
+              </div>
+            </article>
+            <div class="calendar-list" id="calendarList"></div>
+          </div>
+        </section>
+
         <section id="ruta" class="content-band">
           <div class="section-heading">
             <div>
@@ -143,6 +204,16 @@
           <div class="module-list" id="moduleList"></div>
         </section>
 
+        <section id="lecciones" class="content-band lessons-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Aula por módulo</p>
+              <h2>Lecciones y contenidos</h2>
+            </div>
+          </div>
+          <div class="lesson-grid" id="lessonGrid"></div>
+        </section>
+
         <section id="evaluaciones" class="content-band">
           <div class="section-heading">
             <div>
@@ -151,6 +222,29 @@
             </div>
           </div>
           <div class="evaluation-grid" id="evaluationList"></div>
+        </section>
+
+        <section id="bitacora" class="content-band journal-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Proceso personal</p>
+              <h2>Bitácora O-L-E-C</h2>
+            </div>
+            <button class="primary-button" type="button">Nueva entrada</button>
+          </div>
+          <div class="journal-layout">
+            <article class="olec-map">
+              <span>Mapa del observador</span>
+              <div class="olec-radar">
+                <strong>O</strong>
+                <strong>L</strong>
+                <strong>E</strong>
+                <strong>C</strong>
+              </div>
+              <p>Seguimiento semanal de observador, lenguaje, emoción y cuerpo.</p>
+            </article>
+            <div class="journal-list" id="journalList"></div>
+          </div>
         </section>
 
         <section id="materiales" class="content-band two-column">
@@ -197,6 +291,17 @@
           </div>
         </section>
 
+        <section id="evidencias" class="content-band evidence-library-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Carpeta académica</p>
+              <h2>Evidencias del estudiante</h2>
+            </div>
+            <button class="primary-button" type="button">Subir evidencia</button>
+          </div>
+          <div class="evidence-library" id="evidenceLibrary"></div>
+        </section>
+
         <section id="certificacion" class="content-band certification-band">
           <div>
             <p class="eyebrow">Cierre del proceso</p>
@@ -204,6 +309,17 @@
             <p>Certificación en Coaching Ontológico, Emocional y Educativo, sujeta a asistencia mínima, prácticas, entregables y evaluación final.</p>
           </div>
           <div class="checklist" id="certChecklist"></div>
+        </section>
+
+        <section id="estudiantes" class="content-band student-band">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Dirección académica</p>
+              <h2>Gestión de estudiantes</h2>
+            </div>
+            <button class="primary-button" type="button">Agregar estudiante</button>
+          </div>
+          <div class="student-grid" id="studentGrid"></div>
         </section>
 
         <section id="admin" class="content-band admin-band">
@@ -248,6 +364,192 @@
               </table>
             </div>
           </div>
+
+          <div class="admin-studio">
+            <section class="admin-panel exam-builder">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Evaluaciones</p>
+                  <h3>Crear examen</h3>
+                </div>
+                <span class="status review">Borrador</span>
+              </div>
+              <div class="admin-form-grid">
+                <label>
+                  Nombre del examen
+                  <input type="text" value="Evaluación práctica módulo 4" />
+                </label>
+                <label>
+                  Módulo
+                  <select>
+                    <option>Diseño de futuro y coordinación de acciones</option>
+                    <option>Escucha profunda y feedback que transforma</option>
+                    <option>Práctica supervisada I</option>
+                  </select>
+                </label>
+                <label>
+                  Fecha límite
+                  <input type="date" value="2026-03-24" />
+                </label>
+                <label>
+                  Tipo de entrega
+                  <select>
+                    <option>Mixta: texto, archivo, audio, video o imagen</option>
+                    <option>Solo archivo</option>
+                    <option>Solo audio/video</option>
+                  </select>
+                </label>
+              </div>
+              <label class="admin-textarea">
+                Instrucciones para el estudiante
+                <textarea rows="5">Entrega una conversación grabada, una reflexión escrita y las evidencias del compromiso diseñado con tu coachee.</textarea>
+              </label>
+              <div class="upload-dropzone">
+                <strong>Adjuntar examen base</strong>
+                <span>PDF, Word, PowerPoint, Excel, imagen, ZIP o enlace externo</span>
+                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*" />
+              </div>
+              <div class="admin-actions">
+                <button class="ghost-button" type="button">Guardar borrador</button>
+                <button class="primary-button" type="button">Publicar evaluación</button>
+              </div>
+            </section>
+
+            <section class="admin-panel evidence-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Evidencias</p>
+                  <h3>Subidas permitidas</h3>
+                </div>
+                <span class="pill">Supabase Storage</span>
+              </div>
+              <div class="format-grid">
+                <article><strong>Audio</strong><span>MP3, WAV, M4A, AAC, OGG</span></article>
+                <article><strong>Video</strong><span>MP4, MOV, WEBM, M4V</span></article>
+                <article><strong>Imagen</strong><span>JPG, PNG, WEBP, HEIC</span></article>
+                <article><strong>Documentos</strong><span>PDF, DOCX, PPTX, XLSX, TXT, ZIP</span></article>
+              </div>
+              <div class="submission-list">
+                <article class="submission-card">
+                  <div>
+                    <strong>Grabación role play</strong>
+                    <span>Mariana R. - Módulo 5 - video/mp4</span>
+                  </div>
+                  <button class="ghost-button" type="button">Revisar</button>
+                </article>
+                <article class="submission-card">
+                  <div>
+                    <strong>Bitácora emocional</strong>
+                    <span>Carlos M. - Módulo 3 - application/pdf</span>
+                  </div>
+                  <button class="ghost-button" type="button">Revisar</button>
+                </article>
+                <article class="submission-card">
+                  <div>
+                    <strong>Audio de conversación</strong>
+                    <span>Laura P. - Módulo 2 - audio/m4a</span>
+                  </div>
+                  <button class="ghost-button" type="button">Revisar</button>
+                </article>
+              </div>
+            </section>
+
+            <section class="admin-panel review-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Revisión académica</p>
+                  <h3>Evaluar entrega</h3>
+                </div>
+                <span class="status review">En revisión</span>
+              </div>
+              <div class="media-preview">
+                <div class="play-button" aria-hidden="true">▶</div>
+                <div>
+                  <strong>Vista previa multimedia</strong>
+                  <span>Audio, video, imagen o documento del estudiante.</span>
+                </div>
+              </div>
+              <label class="admin-textarea">
+                Retroalimentación del admin
+                <textarea rows="5">Buen manejo de escucha y reformulación. Solicitar mayor precisión en compromisos medibles.</textarea>
+              </label>
+              <div class="rubric-grid">
+                <span>Escucha</span><strong>4/5</strong>
+                <span>Ética</span><strong>5/5</strong>
+                <span>Diseño de acción</span><strong>3/5</strong>
+              </div>
+              <div class="admin-actions">
+                <button class="ghost-button" type="button">Solicitar ajustes</button>
+                <button class="primary-button" type="button">Aprobar módulo</button>
+              </div>
+            </section>
+
+            <section class="admin-panel roster-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Registro de estudiantes</p>
+                  <h3>Preinscripciones</h3>
+                </div>
+                <span class="pill">Documento + correo</span>
+              </div>
+              <form class="admin-form-grid" id="preEnrollmentForm">
+                <label>
+                  Nombre completo
+                  <input name="name" type="text" value="Nuevo estudiante Almalead" required />
+                </label>
+                <label>
+                  Número de documento
+                  <input name="document" type="text" inputmode="numeric" value="1234567890" required />
+                </label>
+                <label>
+                  Correo registrado
+                  <input name="email" type="email" value="nuevo@almalead.com" required />
+                </label>
+                <label>
+                  Cohorte
+                  <input name="cohort" type="text" value="Certificación Coaching 2026" required />
+                </label>
+                <button class="primary-button" type="submit">Guardar preinscripción</button>
+                <p class="admin-inline-state" id="preEnrollmentState">El estudiante creará su contraseña desde Crear acceso.</p>
+              </form>
+              <div class="admin-list" id="preEnrollmentList"></div>
+            </section>
+
+            <section class="admin-panel staff-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Equipo académico</p>
+                  <h3>Profesores y coaches</h3>
+                </div>
+                <span class="pill">Invitación admin</span>
+              </div>
+              <form class="admin-form-grid" id="staffForm">
+                <label>
+                  Nombre completo
+                  <input name="name" type="text" value="Coach invitado Almalead" required />
+                </label>
+                <label>
+                  Correo
+                  <input name="email" type="email" value="coach@almalead.com" required />
+                </label>
+                <label>
+                  Rol
+                  <select name="role">
+                    <option value="coach">Coach</option>
+                    <option value="professor">Profesor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </label>
+                <label>
+                  Asignación
+                  <input name="assignment" type="text" value="Módulos 1-4 y mentorías" required />
+                </label>
+                <button class="primary-button" type="submit">Crear invitación</button>
+                <p class="admin-inline-state" id="staffState">En producción se enviará invitación segura por Supabase Auth.</p>
+              </form>
+              <div class="admin-list" id="staffList"></div>
+            </section>
+          </div>
         </section>
       </main>
     </div>
@@ -265,6 +567,6 @@
       </div>
     </div>
 
-    <script src="script.js?v=20260630-login-cinematic"></script>
+    <script src="script.js?v=20260703-roster"></script>
   </body>
 </html>
