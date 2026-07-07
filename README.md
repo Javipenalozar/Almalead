@@ -165,8 +165,57 @@ Los profesores y coaches no deben tener registro público. Su acceso nace desde 
 El esquema incluye:
 
 - `exams`: evaluaciones creadas por dirección académica.
-- `evidence_files`: archivos subidos por estudiante o admin.
+- `evaluation_submissions`: respuestas del estudiante, revisión, retroalimentación y calificación.
+- `evidence_files`: metadatos de archivos subidos por estudiante o admin.
 - bucket privado `almalead-evidence` en Supabase Storage.
+- `academic_submission_review`: vista para que dirección académica/profesores consulten entregas, estudiante, módulo, archivo, estado y nota.
+
+Mapa de datos:
+
+| Información | Dónde queda |
+| --- | --- |
+| Datos del estudiante | `profiles` |
+| Cohorte e inscripción | `cohorts`, `enrollments` |
+| Avance por módulo | `module_progress` |
+| Evaluaciones creadas por admin | `exams` |
+| Respuesta/entrega del estudiante | `evaluation_submissions` |
+| Archivo subido | Storage bucket `almalead-evidence` + metadatos en `evidence_files` |
+| Prácticas y casos | `practices` |
+| Bitácora reflexiva | `reflections` |
+| Materiales de estudio | `materials` |
+| Calificación visible al estudiante | `evaluation_submissions.score`, `max_score`, `feedback`, `grade_visible_to_student` |
+| Recomendaciones del revisor | `evaluation_submissions.recommendations` |
+| Comentarios internos del equipo | `evaluation_submissions.internal_reviewer_notes` |
+| Mensajes a coaches | `coach_messages` y notificación a `coaching@javipenaloza.com` |
+| Grabaciones de clases | `materials` con `material_type = 'recording'` + archivos privados en Storage |
+
+Flujo de revisión:
+
+1. El estudiante sube texto, audio, video, imagen o documento.
+2. El archivo privado se guarda en Supabase Storage dentro de `almalead-evidence/{student_id}/...`.
+3. La metadata queda en `evidence_files`.
+4. La respuesta queda asociada en `evaluation_submissions`.
+5. Profesores, coaches y administradores consultan la vista `academic_submission_review`.
+6. Para descargar, el frontend genera una URL firmada privada desde Supabase Storage.
+7. Al calificar, el profesor guarda `score`, `max_score`, `rubric`, `feedback` y activa `grade_visible_to_student`.
+8. También puede guardar `recommendations` para el estudiante e `internal_reviewer_notes` para el equipo.
+9. El estudiante ve la nota, retroalimentación y recomendaciones en su panel de Evaluaciones.
+
+### Mensajes a coaches
+
+El estudiante puede enviar dudas a Javi, Jedi o Nico. Todos los mensajes deben llegar a:
+
+```text
+coaching@javipenaloza.com
+```
+
+En producción el flujo recomendado es:
+
+1. Guardar el mensaje en `coach_messages`.
+2. Ejecutar una Supabase Edge Function para enviar el correo a `coaching@javipenaloza.com`.
+3. Permitir que dirección académica marque mensajes como leídos o resueltos.
+
+En el prototipo local, el botón abre el correo del usuario con un `mailto:` y guarda una copia local del historial.
 
 Formatos previstos:
 

@@ -132,11 +132,77 @@ const resources = [
   ["Marco ético", "Límites del coaching, consentimiento informado y derivación responsable.", "PDF"],
 ];
 
-let practices = [
+const evaluationGuides = Object.fromEntries(modules.map((module, index) => {
+  const number = index + 1;
+  const slug = module.title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return [module.id, {
+    resourceName: `Guía evaluación módulo ${number} - ${slug}.pdf`,
+    expectedFormat: number >= 10 ? "Video, audio, documento o carpeta ZIP" : "Documento, audio, imagen o video",
+    instructions: `Desarrolla la actividad: ${module.evaluation} Usa los conceptos del módulo, registra evidencia concreta de tu práctica y agrega una reflexión breve sobre aprendizajes, dificultades y próximos compromisos.`,
+    rubric: [
+      "Comprensión del contenido central del módulo.",
+      "Aplicación práctica en una conversación, caso o experiencia real.",
+      "Claridad de evidencias, reflexión personal y próximos pasos.",
+    ],
+  }];
+}));
+
+const defaultAdminMaterials = [
+  {
+    title: "Guía complementaria de práctica",
+    description: "Revisa este material antes de la próxima clase y registra una reflexión breve en tu bitácora.",
+    section: "materiales",
+    moduleId: "m1",
+    fileName: "guia-practica.pdf",
+    status: "Publicado",
+    createdAt: "2026-07-06",
+  },
+  {
+    title: "Grabación clase módulo 4",
+    description: "Clase virtual sobre diseño de futuro, promesas y coordinación de acciones.",
+    section: "grabaciones",
+    moduleId: "m4",
+    fileName: "grabacion-modulo-4.mp4",
+    status: "Publicado",
+    createdAt: "2026-07-07",
+  },
+  {
+    title: "Plantilla de conversación",
+    description: "Formato para observar actos lingüísticos, pedidos, ofertas, promesas y juicios fundados.",
+    section: "lecciones",
+    moduleId: "m2",
+    fileName: "plantilla-conversacion.docx",
+    status: "Publicado",
+    createdAt: "2026-07-07",
+  },
+];
+
+const defaultAdminExams = [
+  {
+    title: "Evaluación práctica módulo 4",
+    moduleId: "m4",
+    moduleName: "Diseño de futuro y coordinación de acciones",
+    dueDate: "2026-07-08",
+    deliveryType: "Mixta: texto, archivo, audio, video o imagen",
+    instructions: "Entrega una conversación grabada, una reflexión escrita y las evidencias del compromiso diseñado con tu coachee.",
+    fileName: "Sin archivo adjunto",
+    status: "Borrador",
+  },
+];
+
+const defaultPractices = [
   ["Práctica de rol O-L-E-C", "2026-05-06", "Completada", "Observador, lenguaje, emoción y cuerpo"],
   ["Grabación de conversación poderosa", "2026-05-20", "En revisión", "Pendiente de retroalimentación supervisada"],
   ["Caso del participante", "2026-06-03", "Pendiente", "Subir consentimiento informado"],
 ];
+
+let practices = JSON.parse(localStorage.getItem("almalead.practices") || "null") || defaultPractices;
 
 const calendarEvents = [
   ["Mar 21 abr", "Inicio de cohorte", "Bienvenida y encuadre del proceso · 7:00 p. m.", "Apertura"],
@@ -156,23 +222,204 @@ const lessons = [
 ];
 
 const journalEntries = [
-  ["Observador", "Detecté que mi juicio principal aparece cuando el coachee duda de su decisión.", "Hace 2 días"],
-  ["Lenguaje", "Convertí una queja en pedido concreto con condición de satisfacción.", "Hace 5 días"],
-  ["Emoción", "Trabajé apertura al aprendizaje antes de la práctica supervisada.", "Hace 1 semana"],
+  {
+    moduleId: "m1",
+    dimension: "Observador",
+    text: "Detecté que mi juicio principal aparece cuando el coachee duda de su decisión.",
+    createdAt: "2026-07-05",
+  },
+  {
+    moduleId: "m2",
+    dimension: "Lenguaje",
+    text: "Convertí una queja en pedido concreto con condición de satisfacción.",
+    createdAt: "2026-07-02",
+  },
+  {
+    moduleId: "m3",
+    dimension: "Emoción",
+    text: "Trabajé apertura al aprendizaje antes de la práctica supervisada.",
+    createdAt: "2026-06-28",
+  },
 ];
 
-const evidenceItems = [
+const defaultEvidenceItems = [
   ["Grabación de conversación", "video/mp4", "Módulo 5", "En revisión"],
   ["Bitácora emocional", "application/pdf", "Módulo 3", "Aprobada"],
   ["Audio de práctica", "audio/m4a", "Módulo 2", "Aprobada"],
   ["Consentimiento informado", "application/pdf", "Módulo 9", "Pendiente"],
 ];
 
+let evidenceItems = JSON.parse(localStorage.getItem("almalead.evidenceItems") || "null") || defaultEvidenceItems;
+
 const students = [
   ["Mariana Rojas", "1020304050", "Módulo 5", "En revisión", 38],
   ["Carlos Méndez", "1002457812", "Módulo 3", "Activo", 25],
   ["Laura Pérez", "52788441", "Módulo 2", "Aprobado", 18],
   ["Andrés Gómez", "79881234", "Módulo 1", "Pendiente", 8],
+];
+
+const studentProfiles = [
+  {
+    id: "mariana-rojas",
+    name: "Mariana Rojas",
+    document: "1020304050",
+    email: "mariana.rojas@almalead.com",
+    mentor: "Mariana Torres",
+    progress: 38,
+    currentModule: 5,
+    approvedModules: [1, 2, 3],
+    submittedModules: [4],
+    blockedModules: [5],
+    practicesDone: 4,
+    practicesRequired: 12,
+    attendance: 86,
+    evidences: [
+      ["Grabación de práctica de rol", "En revisión", "Módulo 5"],
+      ["Bitácora emocional", "Aprobada", "Módulo 3"],
+      ["Consentimiento informado", "Pendiente", "Módulo 9"],
+    ],
+    pending: ["Aprobar entrega del módulo 4", "Subir consentimiento informado", "Registrar 8 prácticas adicionales"],
+    nextAction: "Revisar entrega del módulo 4 y liberar ruta del módulo 5.",
+    risk: "Medio",
+    lastActivity: "Hace 2 días",
+  },
+  {
+    id: "carlos-mendez",
+    name: "Carlos Méndez",
+    document: "1002457812",
+    email: "carlos.mendez@almalead.com",
+    mentor: "Mariana Torres",
+    progress: 25,
+    currentModule: 3,
+    approvedModules: [1, 2],
+    submittedModules: [],
+    blockedModules: [4],
+    practicesDone: 2,
+    practicesRequired: 12,
+    attendance: 78,
+    evidences: [
+      ["Bitácora emocional", "En revisión", "Módulo 3"],
+      ["Audio de conversación", "Pendiente", "Módulo 2"],
+    ],
+    pending: ["Completar bitácora emocional", "Subir audio de conversación", "Recuperar asistencia de una sesión"],
+    nextAction: "Agendar seguimiento de 20 minutos para destrabar módulo 3.",
+    risk: "Alto",
+    lastActivity: "Hace 5 días",
+  },
+  {
+    id: "laura-perez",
+    name: "Laura Pérez",
+    document: "52788441",
+    email: "laura.perez@almalead.com",
+    mentor: "Mariana Torres",
+    progress: 18,
+    currentModule: 2,
+    approvedModules: [1, 2],
+    submittedModules: [],
+    blockedModules: [],
+    practicesDone: 2,
+    practicesRequired: 12,
+    attendance: 92,
+    evidences: [
+      ["Audio de práctica", "Aprobada", "Módulo 2"],
+      ["Mapa del observador", "Aprobada", "Módulo 1"],
+    ],
+    pending: ["Iniciar módulo 3", "Registrar práctica corporal", "Crear entrada O-L-E-C semanal"],
+    nextAction: "Enviar recordatorio suave para iniciar el módulo 3.",
+    risk: "Bajo",
+    lastActivity: "Ayer",
+  },
+  {
+    id: "andres-gomez",
+    name: "Andrés Gómez",
+    document: "79881234",
+    email: "andres.gomez@almalead.com",
+    mentor: "Por asignar",
+    progress: 8,
+    currentModule: 1,
+    approvedModules: [],
+    submittedModules: [1],
+    blockedModules: [2],
+    practicesDone: 0,
+    practicesRequired: 12,
+    attendance: 64,
+    evidences: [
+      ["Mapa personal del observador", "En revisión", "Módulo 1"],
+      ["Bitácora inicial", "Pendiente", "Módulo 1"],
+    ],
+    pending: ["Aprobar módulo 1", "Completar bitácora inicial", "Asignar mentor académico"],
+    nextAction: "Contactar al estudiante y asignar mentor antes de liberar módulo 2.",
+    risk: "Alto",
+    lastActivity: "Hace 9 días",
+  },
+];
+
+const defaultSubmissionReviews = [
+  {
+    id: "sub-mariana-m4",
+    studentId: "mariana-rojas",
+    studentName: "Mariana Rojas",
+    moduleName: "Módulo 4",
+    title: "Diseño de futuro con promesas medibles",
+    fileName: "mariana-rojas-modulo-4-video.mp4",
+    mimeType: "video/mp4",
+    storagePath: "1020304050/modulo-4/mariana-rojas-modulo-4-video.mp4",
+    submittedAt: "2026-07-01",
+    status: "En revisión",
+    score: null,
+    maxScore: 100,
+    feedback: "Pendiente de revisión académica.",
+    recommendations: "Revisar precisión de compromisos, pedidos y condiciones de satisfacción.",
+    internalNotes: "Priorizar esta revisión antes de liberar el módulo 5.",
+    visibleToStudent: false,
+  },
+  {
+    id: "sub-carlos-m3",
+    studentId: "carlos-mendez",
+    studentName: "Carlos Méndez",
+    moduleName: "Módulo 3",
+    title: "Bitácora emocional y práctica corporal",
+    fileName: "carlos-mendez-bitacora.pdf",
+    mimeType: "application/pdf",
+    storagePath: "1002457812/modulo-3/carlos-mendez-bitacora.pdf",
+    submittedAt: "2026-06-26",
+    status: "En revisión",
+    score: 82,
+    maxScore: 100,
+    feedback: "Buen reconocimiento emocional. Falta conectar la práctica corporal con compromisos observables.",
+    recommendations: "Agregar una práctica corporal diaria y evidenciar cambios observables.",
+    internalNotes: "Revisar asistencia antes de aprobar el módulo.",
+    visibleToStudent: true,
+  },
+  {
+    id: "sub-laura-m2",
+    studentId: "laura-perez",
+    studentName: "Laura Pérez",
+    moduleName: "Módulo 2",
+    title: "Audio de conversación poderosa",
+    fileName: "laura-perez-audio-m2.m4a",
+    mimeType: "audio/m4a",
+    storagePath: "52788441/modulo-2/laura-perez-audio-m2.m4a",
+    submittedAt: "2026-06-18",
+    status: "Calificada",
+    score: 94,
+    maxScore: 100,
+    feedback: "Excelente escucha y reformulación. Mantener claridad en condiciones de satisfacción.",
+    recommendations: "Sostener la misma estructura en conversaciones de mayor complejidad.",
+    internalNotes: "Puede apoyar a pares en práctica de escucha.",
+    visibleToStudent: true,
+  },
+];
+
+const defaultCoachMessages = [
+  {
+    coach: "Javi",
+    subject: "Duda sobre mi proceso de certificación",
+    message: "Hola, tengo una inquietud sobre mi avance y quisiera orientación.",
+    emailTo: "coaching@javipenaloza.com",
+    sentAt: "2026-07-07",
+    status: "Borrador local",
+  },
 ];
 
 const defaultPreEnrollments = [
@@ -207,17 +454,26 @@ const state = {
   approvals: JSON.parse(localStorage.getItem("almalead.approvals") || "null"),
   grades: JSON.parse(localStorage.getItem("almalead.grades") || "{}"),
   reflection: localStorage.getItem("almalead.reflection") || "",
+  journalEntries: JSON.parse(localStorage.getItem("almalead.journalEntries") || "null") || journalEntries,
   preEnrollments: JSON.parse(localStorage.getItem("almalead.preEnrollments") || "null") || defaultPreEnrollments,
   staff: JSON.parse(localStorage.getItem("almalead.staff") || "null") || defaultStaff,
+  adminMaterials: JSON.parse(localStorage.getItem("almalead.adminMaterials") || "null") || defaultAdminMaterials,
+  adminExams: JSON.parse(localStorage.getItem("almalead.adminExams") || "null") || defaultAdminExams,
+  submissionReviews: JSON.parse(localStorage.getItem("almalead.submissionReviews") || "null") || defaultSubmissionReviews,
+  coachMessages: JSON.parse(localStorage.getItem("almalead.coachMessages") || "null") || defaultCoachMessages,
+  selectedStudentId: localStorage.getItem("almalead.selectedStudentId") || "mariana-rojas",
+  selectedSubmissionId: localStorage.getItem("almalead.selectedSubmissionId") || "sub-mariana-m4",
+  selectedEvaluationModuleId: null,
   filter: "all",
 };
 
 const demoUsers = {
-  estudiante: { password: "almalead2026", name: "Estudiante Almalead", initials: "EA" },
-  admin: { password: "admin2026", name: "Dirección Académica", initials: "DA" },
+  estudiante: { password: "almalead2026", name: "Estudiante Almalead", initials: "EA", role: "student" },
+  admin: { password: "admin2026", name: "Dirección Académica", initials: "DA", role: "admin" },
 };
 
 const preEnrollments = state.preEnrollments;
+let currentUserRole = "student";
 
 if (!state.approvals) {
   const completed = JSON.parse(localStorage.getItem("almalead.completed") || "[]");
@@ -228,6 +484,20 @@ if (!state.approvals) {
     }),
   );
 }
+
+state.adminMaterials = state.adminMaterials.map((item) => {
+  if (item.moduleId) return item;
+  const title = item.title.toLowerCase();
+  if (title.includes("módulo 4") || title.includes("modulo 4")) return { ...item, moduleId: "m4" };
+  if (title.includes("conversación") || title.includes("conversacion")) return { ...item, moduleId: "m2" };
+  return { ...item, moduleId: "general" };
+});
+
+state.adminExams = state.adminExams.map((item) => {
+  if (item.moduleId) return item;
+  const module = modules.find((moduleItem) => moduleItem.title === item.moduleName);
+  return { ...item, moduleId: module?.id || "m4", moduleName: module?.title || item.moduleName };
+});
 
 const moduleList = document.querySelector("#moduleList");
 const loginForm = document.querySelector("#loginForm");
@@ -243,6 +513,8 @@ const hoursCount = document.querySelector("#hoursCount");
 const practiceCount = document.querySelector("#practiceCount");
 const gpaDisplay = document.querySelector("#gpaDisplay");
 const reflection = document.querySelector("#reflection");
+const journalModule = document.querySelector("#journalModule");
+const journalDimension = document.querySelector("#journalDimension");
 const saveState = document.querySelector("#saveState");
 const logoutButton = document.querySelector("#logoutButton");
 const profileButton = document.querySelector(".profile-button");
@@ -255,6 +527,7 @@ const recoveryState = document.querySelector("#recoveryState");
 const calendarList = document.querySelector("#calendarList");
 const lessonGrid = document.querySelector("#lessonGrid");
 const journalList = document.querySelector("#journalList");
+const journalPromptList = document.querySelector("#journalPromptList");
 const evidenceLibrary = document.querySelector("#evidenceLibrary");
 const studentGrid = document.querySelector("#studentGrid");
 const preEnrollmentForm = document.querySelector("#preEnrollmentForm");
@@ -263,13 +536,101 @@ const preEnrollmentList = document.querySelector("#preEnrollmentList");
 const staffForm = document.querySelector("#staffForm");
 const staffState = document.querySelector("#staffState");
 const staffList = document.querySelector("#staffList");
+const navLinks = [...document.querySelectorAll(".nav-list a")];
+const portalSections = [...document.querySelectorAll(".portal-section")];
+const topbarTitle = document.querySelector(".topbar h1");
+const topbarCopy = document.querySelector(".topbar-copy");
+const toast = document.querySelector("#toast");
+const syncCalendar = document.querySelector("#syncCalendar");
+const newJournalEntry = document.querySelector("#newJournalEntry");
+const topbarMaterials = document.querySelector("#topbarMaterials");
+const topbarPending = document.querySelector("#topbarPending");
+const topbarProfile = document.querySelector("#topbarProfile");
+const studentUploadButton = document.querySelector("#studentUploadButton");
+const studentEvidenceInput = document.querySelector("#studentEvidenceInput");
+const practiceForm = document.querySelector("#practiceForm");
+const practiceType = document.querySelector("#practiceType");
+const practiceModule = document.querySelector("#practiceModule");
+const practiceObserved = document.querySelector("#practiceObserved");
+const practiceFormat = document.querySelector("#practiceFormat");
+const practiceContext = document.querySelector("#practiceContext");
+const practiceFileInput = document.querySelector("#practiceFileInput");
+const practiceFileLabel = document.querySelector("#practiceFileLabel");
+const cancelPractice = document.querySelector("#cancelPractice");
+const practiceFormState = document.querySelector("#practiceFormState");
+const focusPreEnrollment = document.querySelector("#focusPreEnrollment");
+const examTitle = document.querySelector("#examTitle");
+const examModule = document.querySelector("#examModule");
+const examDueDate = document.querySelector("#examDueDate");
+const examDeliveryType = document.querySelector("#examDeliveryType");
+const examInstructions = document.querySelector("#examInstructions");
+const examFileInput = document.querySelector("#examFileInput");
+const examFileLabel = document.querySelector("#examFileLabel");
+const saveExamDraft = document.querySelector("#saveExamDraft");
+const publishExam = document.querySelector("#publishExam");
+const examState = document.querySelector("#examState");
+const materialTitle = document.querySelector("#materialTitle");
+const materialSection = document.querySelector("#materialSection");
+const materialModule = document.querySelector("#materialModule");
+const materialText = document.querySelector("#materialText");
+const materialFileInput = document.querySelector("#materialFileInput");
+const materialFileLabel = document.querySelector("#materialFileLabel");
+const saveMaterialDraft = document.querySelector("#saveMaterialDraft");
+const publishMaterial = document.querySelector("#publishMaterial");
+const materialState = document.querySelector("#materialState");
+const materialAdminList = document.querySelector("#materialAdminList");
+const requestReviewChanges = document.querySelector("#requestReviewChanges");
+const approveReviewedModule = document.querySelector("#approveReviewedModule");
+const reviewState = document.querySelector("#reviewState");
+const adminStudentList = document.querySelector("#adminStudentList");
+const studentProgressDetail = document.querySelector("#studentProgressDetail");
+const cohortRiskSummary = document.querySelector("#cohortRiskSummary");
+const studentGradeList = document.querySelector("#studentGradeList");
+const submissionReviewList = document.querySelector("#submissionReviewList");
+const exportEvidenceReport = document.querySelector("#exportEvidenceReport");
+const gradingTitle = document.querySelector("#gradingTitle");
+const gradingMeta = document.querySelector("#gradingMeta");
+const gradingScore = document.querySelector("#gradingScore");
+const gradingMaxScore = document.querySelector("#gradingMaxScore");
+const gradingFeedback = document.querySelector("#gradingFeedback");
+const gradingRecommendations = document.querySelector("#gradingRecommendations");
+const gradingInternalNotes = document.querySelector("#gradingInternalNotes");
+const downloadSubmission = document.querySelector("#downloadSubmission");
+const publishGrade = document.querySelector("#publishGrade");
+const gradeState = document.querySelector("#gradeState");
+const coachMessageForm = document.querySelector("#coachMessageForm");
+const coachRecipient = document.querySelector("#coachRecipient");
+const coachSubject = document.querySelector("#coachSubject");
+const coachMessage = document.querySelector("#coachMessage");
+const copyCoachMessage = document.querySelector("#copyCoachMessage");
+const coachMessageState = document.querySelector("#coachMessageState");
+const coachMessageList = document.querySelector("#coachMessageList");
+const evaluationModal = document.querySelector("#evaluationModal");
+const closeEvaluationModal = document.querySelector("#closeEvaluationModal");
+const evaluationModalEyebrow = document.querySelector("#evaluationModalEyebrow");
+const evaluationModalTitle = document.querySelector("#evaluationModalTitle");
+const evaluationModalDescription = document.querySelector("#evaluationModalDescription");
+const evaluationResourceName = document.querySelector("#evaluationResourceName");
+const evaluationExpectedFormat = document.querySelector("#evaluationExpectedFormat");
+const evaluationModalStatus = document.querySelector("#evaluationModalStatus");
+const evaluationInstructions = document.querySelector("#evaluationInstructions");
+const evaluationRubric = document.querySelector("#evaluationRubric");
+const evaluationFileInput = document.querySelector("#evaluationFileInput");
+const evaluationFileLabel = document.querySelector("#evaluationFileLabel");
+const evaluationStudentComment = document.querySelector("#evaluationStudentComment");
+const downloadEvaluationGuide = document.querySelector("#downloadEvaluationGuide");
+const confirmEvaluationSubmission = document.querySelector("#confirmEvaluationSubmission");
+const evaluationModalState = document.querySelector("#evaluationModalState");
 
 function applySession(user) {
   document.body.classList.remove("auth-locked");
   if (user) {
+    currentUserRole = user.role || "student";
+    document.body.dataset.role = currentUserRole;
     profileName.textContent = user.name;
     profileButton.querySelector("span").textContent = user.initials;
   }
+  showSection(location.hash.replace("#", "") || "resumen", { updateHash: false, instant: true });
 }
 
 function restoreSession() {
@@ -295,6 +656,7 @@ function closeAuthPanels() {
 function persist() {
   localStorage.setItem("almalead.approvals", JSON.stringify(state.approvals));
   localStorage.setItem("almalead.grades", JSON.stringify(state.grades));
+  localStorage.setItem("almalead.journalEntries", JSON.stringify(state.journalEntries));
 }
 
 function calculateGPA() {
@@ -307,6 +669,171 @@ function calculateGPA() {
 function persistRoster() {
   localStorage.setItem("almalead.preEnrollments", JSON.stringify(state.preEnrollments));
   localStorage.setItem("almalead.staff", JSON.stringify(state.staff));
+}
+
+function persistStudentWork() {
+  localStorage.setItem("almalead.practices", JSON.stringify(practices));
+  localStorage.setItem("almalead.evidenceItems", JSON.stringify(evidenceItems));
+}
+
+function persistAdminContent() {
+  localStorage.setItem("almalead.adminMaterials", JSON.stringify(state.adminMaterials));
+  localStorage.setItem("almalead.adminExams", JSON.stringify(state.adminExams));
+  localStorage.setItem("almalead.submissionReviews", JSON.stringify(state.submissionReviews));
+  localStorage.setItem("almalead.coachMessages", JSON.stringify(state.coachMessages));
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2600);
+}
+
+function showSection(sectionId, options = {}) {
+  const requestedSection = portalSections.find((section) => section.id === sectionId);
+  const restrictedTo = requestedSection?.dataset.roleOnly;
+  const targetId = requestedSection && (!restrictedTo || restrictedTo === currentUserRole) ? sectionId : "resumen";
+  portalSections.forEach((section) => {
+    section.classList.toggle("active", section.id === targetId);
+  });
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${targetId}`);
+  });
+
+  const activeSection = document.querySelector(`#${targetId}`);
+  if (activeSection) {
+    topbarTitle.textContent = activeSection.dataset.sectionTitle || "Proceso de certificación Almalead";
+    topbarCopy.textContent = activeSection.dataset.sectionCopy || "Coaching ontológico, emocional y educativo con ciencia aplicada, práctica y ética.";
+  }
+
+  if (options.updateHash !== false || targetId !== sectionId) {
+    history.replaceState(null, "", `#${targetId}`);
+  }
+  window.scrollTo({ top: 0, behavior: options.instant ? "auto" : "smooth" });
+}
+
+function getFileSummary(fileList) {
+  const files = [...(fileList || [])];
+  if (!files.length) return "Sin archivo adjunto";
+  if (files.length === 1) return files[0].name;
+  return `${files.length} archivos seleccionados`;
+}
+
+function getTodayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getRiskClass(risk) {
+  if (risk === "Alto") return "danger";
+  if (risk === "Medio") return "review";
+  return "done";
+}
+
+function getStudentProfile(studentId) {
+  return studentProfiles.find((student) => student.id === studentId) || studentProfiles[0];
+}
+
+function getSelectedSubmission() {
+  return state.submissionReviews.find((submission) => submission.id === state.selectedSubmissionId)
+    || state.submissionReviews[0];
+}
+
+function downloadTextFile(fileName, content) {
+  const type = fileName.endsWith(".ics") ? "text/calendar;charset=utf-8" : "text/plain;charset=utf-8";
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function formatICSDate(dateInput, hour = "190000") {
+  return `${dateInput.replaceAll("-", "")}T${hour}`;
+}
+
+function buildCalendarICS() {
+  const events = [
+    {
+      date: cohortSchedule.startsOn,
+      title: "Inicio de cohorte Almalead",
+      description: "Bienvenida y encuadre del proceso de certificación.",
+      startHour: "190000",
+      endHour: "210000",
+    },
+    ...modules.flatMap((module, index) => {
+      const moduleNumber = index + 1;
+      const unlockDate = module.unlockAt.slice(0, 10);
+      return [
+        {
+          date: module.classDate,
+          title: `Clase módulo ${moduleNumber}: ${module.title}`,
+          description: module.description,
+          startHour: "190000",
+          endHour: "210000",
+        },
+        {
+          date: unlockDate,
+          title: `Activación módulo ${moduleNumber}`,
+          description: `Materiales y evaluación del módulo ${moduleNumber} disponibles desde las 00:00 h Colombia.`,
+          startHour: "000000",
+          endHour: "003000",
+        },
+      ];
+    }),
+  ];
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Almalead//Portal Academico//ES",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "X-WR-CALNAME:Almalead - Certificación Coaching",
+    ...events.flatMap((event, index) => [
+      "BEGIN:VEVENT",
+      `UID:almalead-${index + 1}@javipenaloza.com`,
+      `DTSTAMP:${formatICSDate(getTodayISO(), "120000")}`,
+      `DTSTART;TZID=America/Bogota:${formatICSDate(event.date, event.startHour)}`,
+      `DTEND;TZID=America/Bogota:${formatICSDate(event.date, event.endHour)}`,
+      `SUMMARY:${event.title}`,
+      `DESCRIPTION:${event.description}`,
+      "END:VEVENT",
+    ]),
+    "END:VCALENDAR",
+  ].join("\r\n");
+}
+
+function getStudentModuleRows(student) {
+  return modules.map((module, index) => {
+    const moduleNumber = index + 1;
+    let status = "Bloqueado";
+    let className = "pending";
+    if (student.approvedModules.includes(moduleNumber)) {
+      status = "Aprobado";
+      className = "done";
+    } else if (student.submittedModules.includes(moduleNumber)) {
+      status = "En revisión";
+      className = "review";
+    } else if (moduleNumber === student.currentModule && !student.blockedModules.includes(moduleNumber)) {
+      status = "Disponible";
+      className = "review";
+    }
+
+    return `
+      <tr>
+        <td>Módulo ${moduleNumber}</td>
+        <td>${module.title}</td>
+        <td><span class="status ${className}">${status}</span></td>
+      </tr>
+    `;
+  }).join("");
 }
 
 function formatDate(dateInput, options = {}) {
@@ -410,49 +937,248 @@ function renderModules() {
 function renderEvaluations() {
   syncUnlockedModules();
   const { gpa, count } = calculateGPA();
-  evaluationList.innerHTML = `
+  const gpaBanner = `
     <div class="gpa-banner">
       <span>Promedio acumulado</span>
       <strong>${gpa.toFixed(1)} / 5.0</strong>
       <span>${count} de ${modules.length} guías calificadas</span>
     </div>
-  ` + modules
+  `;
+  const publishedExams = state.adminExams.filter((exam) => exam.status === "Publicado");
+  const moduleCards = modules
     .map((module, index) => {
       const status = getModuleStatus(module.id);
       const grade = state.grades[module.id];
       const gradeDisplay = grade != null ? `<span class="grade-badge">${grade.toFixed(1)}</span>` : "";
+      const exams = publishedExams.filter((exam) => exam.moduleId === module.id);
+      const canSubmit = status === "available" && exams.length > 0;
+      const examList = exams.length
+        ? exams.map((exam) => `
+            <button class="evaluation-resource" type="button" data-submit-exam="${exam.title}">
+              <span>${getMaterialTypeLabel(exam.fileName, "evaluaciones")}</span>
+              <strong>${exam.title}</strong>
+              <small>Entrega ${exam.dueDate} · ${exam.deliveryType} · ${exam.fileName}</small>
+            </button>
+          `).join("")
+        : `
+            <div class="evaluation-resource empty">
+              <span>Pendiente</span>
+              <strong>Sin evaluación publicada</strong>
+              <small>Dirección académica aún no ha publicado la evaluación de este módulo.</small>
+            </div>
+          `;
+
       return `
-        <article class="evaluation-card ${status}">
+        <article class="evaluation-card ${status} ${exams.length ? "" : "empty"}">
           <div>
             <span class="pill">Módulo ${index + 1}</span>
             <span class="pill">Disponible ${formatUnlockDate(module.unlockAt)}</span>
             <h3>${module.title}</h3>
-            <p>${module.evaluation}</p>
+            <p>${exams.length} evaluación${exams.length === 1 ? "" : "es"} publicada${exams.length === 1 ? "" : "s"} por dirección académica.</p>
+            <div class="evaluation-resource-list">
+              ${examList}
+            </div>
           </div>
           <div class="evaluation-actions">
             ${gradeDisplay}
             <span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span>
-            <button class="primary-button" type="button" data-submit-module="${module.id}" ${status === "available" ? "" : "disabled"}>
-              Enviar
+            <button class="primary-button" type="button" data-submit-exam="${exams[0]?.title || ""}" ${canSubmit ? "" : "disabled"}>
+              ${exams.length ? "Enviar evaluación" : "Sin evaluación"}
             </button>
           </div>
         </article>
       `;
-    })
+    });
+
+  evaluationList.innerHTML = gpaBanner + moduleCards.join("");
+}
+
+function getEvaluationGuide(moduleId) {
+  const module = modules.find((item) => item.id === moduleId);
+  if (!module) return null;
+  return {
+    module,
+    moduleNumber: modules.findIndex((item) => item.id === module.id) + 1,
+    guide: evaluationGuides[module.id],
+    status: getModuleStatus(module.id),
+  };
+}
+
+function getExamEvaluation(examTitle) {
+  const exam = state.adminExams.find((item) => item.title === examTitle && item.status === "Publicado");
+  if (!exam) return null;
+  const module = modules.find((item) => item.id === exam.moduleId) || modules.find((item) => item.title === exam.moduleName);
+  if (!module) return null;
+  const moduleNumber = modules.findIndex((item) => item.id === module.id) + 1;
+  return {
+    exam,
+    module,
+    moduleNumber,
+    guide: {
+      resourceName: exam.fileName || `Evaluación módulo ${moduleNumber}.pdf`,
+      expectedFormat: exam.deliveryType,
+      instructions: exam.instructions,
+      rubric: [
+        "Cumplimiento de las instrucciones publicadas por dirección académica.",
+        "Evidencia clara, verificable y correspondiente al módulo.",
+        "Reflexión sobre aprendizajes, aplicación práctica y próximos pasos.",
+      ],
+    },
+    status: getModuleStatus(module.id),
+  };
+}
+
+function openEvaluationModal(moduleId, examTitle = "") {
+  const evaluation = examTitle ? getExamEvaluation(examTitle) : getEvaluationGuide(moduleId);
+  if (!evaluation) return;
+
+  state.selectedEvaluationModuleId = evaluation.module.id;
+  state.selectedEvaluationExamTitle = examTitle;
+  evaluationFileInput.value = "";
+  evaluationFileLabel.textContent = "Seleccionar archivo de entrega";
+  evaluationStudentComment.value = "";
+  evaluationModalEyebrow.textContent = examTitle ? `Evaluación publicada · Módulo ${evaluation.moduleNumber}` : `Evaluación módulo ${evaluation.moduleNumber}`;
+  evaluationModalTitle.textContent = examTitle || evaluation.module.title;
+  evaluationModalDescription.textContent = examTitle ? evaluation.module.title : evaluation.module.evaluation;
+  evaluationResourceName.textContent = evaluation.guide.resourceName;
+  evaluationExpectedFormat.textContent = evaluation.guide.expectedFormat;
+  evaluationModalStatus.textContent = getStatusLabel(evaluation.status);
+  evaluationInstructions.textContent = evaluation.guide.instructions;
+  evaluationRubric.innerHTML = evaluation.guide.rubric.map((item) => `<li>${item}</li>`).join("");
+  evaluationModalState.textContent = "Descarga o revisa la guía, realiza el trabajo y adjunta tu evidencia para enviarla a revisión.";
+  evaluationModalState.className = "admin-inline-state";
+  evaluationModal.classList.add("open");
+  evaluationModal.setAttribute("aria-hidden", "false");
+}
+
+function closeEvaluationModalPanel() {
+  evaluationModal.classList.remove("open");
+  evaluationModal.setAttribute("aria-hidden", "true");
+}
+
+function buildEvaluationGuideText(evaluation) {
+  return [
+    "Almalead - Guía de evaluación",
+    `Módulo ${evaluation.moduleNumber}: ${evaluation.module.title}`,
+    "",
+    `Actividad: ${evaluation.module.evaluation}`,
+    "",
+    "Instrucciones:",
+    evaluation.guide.instructions,
+    "",
+    "Criterios de revisión:",
+    ...evaluation.guide.rubric.map((item) => `- ${item}`),
+    "",
+    `Formato esperado: ${evaluation.guide.expectedFormat}`,
+    "La entrega quedará en revisión hasta que dirección académica publique calificación, comentarios y recomendaciones.",
+  ].join("\n");
+}
+
+function renderStudentGrades() {
+  const publishedGrades = state.submissionReviews.filter((submission) => submission.visibleToStudent);
+
+  if (!publishedGrades.length) {
+    studentGradeList.innerHTML = `
+      <article class="grade-item">
+        <div>
+          <strong>Aún no hay calificaciones publicadas</strong>
+          <span>Cuando el profesor revise tus entregas, aparecerán aquí con retroalimentación.</span>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  studentGradeList.innerHTML = publishedGrades
+    .map((submission) => `
+      <article class="grade-item">
+        <div>
+          <strong>${submission.moduleName}: ${submission.title}</strong>
+          <span>${submission.feedback}</span>
+          <span>Recomendación: ${submission.recommendations || "Sin recomendaciones adicionales."}</span>
+        </div>
+        <strong>${submission.score}/${submission.maxScore}</strong>
+      </article>
+    `)
     .join("");
 }
 
 function renderResources() {
-  resourceList.innerHTML = resources
-    .map(([title, description, type]) => `
-      <article class="resource-card">
+  const publishedMaterials = state.adminMaterials.filter((item) => (
+    item.status === "Publicado"
+    && ["materiales", "grabaciones", "lecciones", "evaluaciones", "bitacora"].includes(item.section)
+  ));
+
+  if (!publishedMaterials.length) {
+    resourceList.innerHTML = `
+      <article class="resource-card empty">
         <div>
-          <h3>${title}</h3>
-          <p>${description}</p>
+          <span class="pill">Biblioteca</span>
+          <h3>Sin materiales publicados</h3>
+          <p>Dirección académica aún no ha subido documentos, videos, audios, guías o grabaciones para estudiantes.</p>
         </div>
-        <span class="pill">${type}</span>
+      </article>
+    `;
+    return;
+  }
+
+  resourceList.innerHTML = publishedMaterials
+    .map((item) => {
+      const moduleLabel = item.moduleId === "general"
+        ? "General"
+        : `Módulo ${modules.findIndex((module) => module.id === item.moduleId) + 1}`;
+      const type = getMaterialTypeLabel(item.fileName, item.section);
+      return `
+      <article class="resource-card" data-open-resource="${item.title}">
+        <div>
+          <div class="resource-meta">
+            <span class="pill">${moduleLabel}</span>
+            <span class="pill">${item.section}</span>
+            <span class="pill">${type}</span>
+          </div>
+          <h3>${item.title}</h3>
+          <p>${item.description}</p>
+          <small>${item.fileName}</small>
+        </div>
+        <button class="ghost-button" type="button">Abrir</button>
+      </article>
+    `;
+    })
+    .join("");
+}
+
+function renderCoachMessages() {
+  coachMessageList.innerHTML = state.coachMessages
+    .map((item) => `
+      <article class="admin-list-item">
+        <div>
+          <strong>${item.coach} · ${item.subject}</strong>
+          <span>${item.emailTo} · ${item.sentAt}</span>
+          <small>${item.message}</small>
+        </div>
+        <span class="status review">${item.status}</span>
       </article>
     `)
+    .join("");
+}
+
+function renderAdminMaterials() {
+  materialAdminList.innerHTML = state.adminMaterials
+    .map((item) => {
+      const moduleLabel = item.moduleId === "general"
+        ? "General"
+        : `Módulo ${modules.findIndex((module) => module.id === item.moduleId) + 1}`;
+      return `
+        <article class="admin-list-item">
+          <div>
+            <strong>${item.title}</strong>
+            <span>${moduleLabel} · ${item.section} · ${getMaterialTypeLabel(item.fileName, item.section)} · ${item.fileName}</span>
+            <small>${item.description}</small>
+          </div>
+          <span class="status ${item.status === "Publicado" ? "done" : "review"}">${item.status}</span>
+        </article>
+      `;
+    })
     .join("");
 }
 
@@ -471,32 +1197,116 @@ function renderCalendar() {
     .join("");
 }
 
+function getMaterialTypeLabel(fileName = "", section = "") {
+  const value = `${fileName} ${section}`.toLowerCase();
+  if (section === "grabaciones" || /\.(mp4|mov|webm|m4v)\b/.test(value)) return "Video";
+  if (/\.(mp3|wav|m4a|aac|ogg)\b/.test(value)) return "Audio";
+  if (/\.(pdf)\b/.test(value)) return "PDF";
+  if (/\.(doc|docx|txt)\b/.test(value)) return "Documento";
+  if (/\.(ppt|pptx)\b/.test(value)) return "Presentación";
+  if (/\.(xls|xlsx)\b/.test(value)) return "Hoja de cálculo";
+  if (/\.(jpg|jpeg|png|webp|heic)\b/.test(value)) return "Imagen";
+  if (/\.(zip|rar)\b/.test(value)) return "Comprimido";
+  return section === "evaluaciones" ? "Evaluación" : "Recurso";
+}
+
+function getLessonMaterials(moduleId) {
+  return state.adminMaterials.filter((item) => (
+    item.status === "Publicado"
+    && (item.moduleId === moduleId || item.moduleId === "general")
+    && ["lecciones", "materiales", "grabaciones"].includes(item.section)
+  ));
+}
+
+function getModuleProgressForLesson(module) {
+  const status = getModuleStatus(module.id);
+  if (status === "approved") return 100;
+  if (status === "submitted") return 70;
+  if (status === "available") return 42;
+  return 0;
+}
+
 function renderLessons() {
-  lessonGrid.innerHTML = lessons
-    .map(([moduleName, title, content, progress]) => `
-      <article class="lesson-card">
+  lessonGrid.innerHTML = modules
+    .map((module, index) => {
+      const progress = getModuleProgressForLesson(module);
+      const materials = getLessonMaterials(module.id);
+      const resourceMarkup = materials.length
+        ? materials.map((item) => `
+            <button class="lesson-resource" type="button" data-open-resource="${item.title}">
+              <span>${getMaterialTypeLabel(item.fileName, item.section)}</span>
+              <strong>${item.title}</strong>
+              <small>${item.fileName}</small>
+            </button>
+          `).join("")
+        : `
+            <div class="lesson-resource empty">
+              <span>Pendiente</span>
+              <strong>Sin recursos publicados</strong>
+              <small>Dirección académica aún no ha subido material para este módulo.</small>
+            </div>
+          `;
+
+      return `
+      <article class="lesson-card ${materials.length ? "" : "empty"}">
         <div>
-          <span class="pill">${moduleName}</span>
-          <h3>${title}</h3>
-          <p>${content}</p>
+          <span class="pill">Módulo ${index + 1}</span>
+          <h3>${module.title}</h3>
+          <p>${materials.length} recurso${materials.length === 1 ? "" : "s"} publicado${materials.length === 1 ? "" : "s"} por dirección académica.</p>
+          <div class="lesson-resource-list">
+            ${resourceMarkup}
+          </div>
         </div>
         <div class="lesson-progress" style="--lesson-progress: ${progress}">
           <strong>${progress}%</strong>
         </div>
       </article>
-    `)
+    `;
+    })
     .join("");
 }
 
 function renderJournal() {
-  journalList.innerHTML = journalEntries
-    .map(([dimension, text, date]) => `
-      <article class="journal-card">
-        <span>${dimension}</span>
-        <p>${text}</p>
-        <time>${date}</time>
+  const prompts = state.adminMaterials.filter((item) => (
+    item.status === "Publicado"
+    && item.section === "bitacora"
+  ));
+
+  journalPromptList.innerHTML = prompts.length
+    ? prompts.map((item) => {
+      const moduleLabel = item.moduleId === "general"
+        ? "General"
+        : `Módulo ${modules.findIndex((module) => module.id === item.moduleId) + 1}`;
+      return `
+        <article class="journal-prompt-card">
+          <span>${moduleLabel}</span>
+          <strong>${item.title}</strong>
+          <p>${item.description}</p>
+          <small>${item.fileName}</small>
+        </article>
+      `;
+    }).join("")
+    : `
+      <article class="journal-prompt-card empty">
+        <span>Pendiente</span>
+        <strong>Sin consignas de bitácora publicadas</strong>
+        <p>Dirección académica puede publicar una guía, pregunta o plantilla desde el panel admin.</p>
       </article>
-    `)
+    `;
+
+  journalList.innerHTML = state.journalEntries
+    .map((entry) => {
+      const moduleLabel = entry.moduleId === "general"
+        ? "General"
+        : `Módulo ${modules.findIndex((module) => module.id === entry.moduleId) + 1}`;
+      return `
+      <article class="journal-card">
+        <span>${moduleLabel} · ${entry.dimension}</span>
+        <p>${entry.text}</p>
+        <time>${entry.createdAt}</time>
+      </article>
+    `;
+    })
     .join("");
 }
 
@@ -520,8 +1330,10 @@ function renderEvidenceLibrary() {
 
 function renderStudents() {
   studentGrid.innerHTML = students
-    .map(([name, documentId, moduleName, status, progress]) => `
-      <article class="student-card">
+    .map(([name, documentId, moduleName, status, progress]) => {
+      const profile = studentProfiles.find((student) => student.document === documentId);
+      return `
+      <article class="student-card" ${profile ? `data-view-student="${profile.id}"` : ""}>
         <div class="student-avatar">${name.split(" ").map((part) => part[0]).join("").slice(0, 2)}</div>
         <div>
           <h3>${name}</h3>
@@ -530,8 +1342,132 @@ function renderStudents() {
         </div>
         <strong>${progress}%</strong>
       </article>
+    `;
+    })
+    .join("");
+}
+
+function renderAdminStudentProgress() {
+  const selectedStudent = getStudentProfile(state.selectedStudentId);
+  const riskCounts = studentProfiles.reduce(
+    (counts, student) => {
+      counts[student.risk] = (counts[student.risk] || 0) + 1;
+      return counts;
+    },
+    {},
+  );
+
+  cohortRiskSummary.textContent = `${studentProfiles.length} estudiantes · ${riskCounts.Alto || 0} en riesgo alto`;
+
+  adminStudentList.innerHTML = studentProfiles
+    .map((student) => `
+      <button class="student-progress-button ${student.id === selectedStudent.id ? "active" : ""}" type="button" data-admin-student="${student.id}">
+        <span>${student.name}</span>
+        <strong>${student.progress}%</strong>
+        <small>Módulo ${student.currentModule} · Riesgo ${student.risk}</small>
+      </button>
     `)
     .join("");
+
+  studentProgressDetail.innerHTML = `
+    <div class="student-detail-header">
+      <div>
+        <p class="eyebrow">Ficha académica</p>
+        <h3>${selectedStudent.name}</h3>
+        <span>${selectedStudent.email} · Documento ${selectedStudent.document}</span>
+      </div>
+      <span class="status ${getRiskClass(selectedStudent.risk)}">Riesgo ${selectedStudent.risk}</span>
+    </div>
+    <div class="student-kpi-grid">
+      <article>
+        <span>Avance</span>
+        <strong>${selectedStudent.progress}%</strong>
+      </article>
+      <article>
+        <span>Asistencia</span>
+        <strong>${selectedStudent.attendance}%</strong>
+      </article>
+      <article>
+        <span>Prácticas</span>
+        <strong>${selectedStudent.practicesDone}/${selectedStudent.practicesRequired}</strong>
+      </article>
+      <article>
+        <span>Módulo actual</span>
+        <strong>${selectedStudent.currentModule}/12</strong>
+      </article>
+    </div>
+    <div class="student-progress-bar" aria-label="Avance de ${selectedStudent.name}">
+      <span style="width: ${selectedStudent.progress}%"></span>
+    </div>
+    <div class="student-detail-grid">
+      <section>
+        <h4>Pendientes críticos</h4>
+        <ul>
+          ${selectedStudent.pending.map((item) => `<li>${item}</li>`).join("")}
+        </ul>
+      </section>
+      <section>
+        <h4>Evidencias</h4>
+        <ul>
+          ${selectedStudent.evidences.map(([title, status, moduleName]) => `<li>${title} · ${moduleName} · ${status}</li>`).join("")}
+        </ul>
+      </section>
+    </div>
+    <div class="student-next-action">
+      <strong>Próxima acción sugerida</strong>
+      <p>${selectedStudent.nextAction}</p>
+      <div class="admin-actions">
+        <button class="ghost-button" type="button" data-student-reminder="${selectedStudent.id}">Enviar recordatorio</button>
+        <button class="primary-button" type="button" data-student-followup="${selectedStudent.id}">Registrar seguimiento</button>
+      </div>
+      <span>Última actividad: ${selectedStudent.lastActivity} · Mentor: ${selectedStudent.mentor}</span>
+    </div>
+    <div class="practice-table-wrap compact-table">
+      <table class="practice-table student-module-table">
+        <thead>
+          <tr>
+            <th>Módulo</th>
+            <th>Contenido</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>${getStudentModuleRows(selectedStudent)}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderSubmissionReviewCenter() {
+  const selectedSubmission = getSelectedSubmission();
+
+  submissionReviewList.innerHTML = state.submissionReviews
+    .map((submission) => `
+      <button class="submission-review-button ${submission.id === selectedSubmission.id ? "active" : ""}" type="button" data-select-submission="${submission.id}">
+        <span>${submission.studentName}</span>
+        <strong>${submission.moduleName}</strong>
+        <small>${submission.title} · ${submission.fileName}</small>
+        <em>${submission.visibleToStudent ? `Publicado ${submission.score}/${submission.maxScore}` : submission.status}</em>
+      </button>
+    `)
+    .join("");
+
+  gradingTitle.textContent = `${selectedSubmission.studentName} · ${selectedSubmission.moduleName}`;
+  gradingMeta.textContent = [
+    selectedSubmission.title,
+    selectedSubmission.practiceType ? `Tipo: ${selectedSubmission.practiceType}` : "",
+    selectedSubmission.observed ? `Observado/caso: ${selectedSubmission.observed}` : "",
+    selectedSubmission.practiceFormat ? `Formato: ${selectedSubmission.practiceFormat}` : selectedSubmission.mimeType,
+    `Ruta: ${selectedSubmission.storagePath}`,
+  ].filter(Boolean).join(" · ");
+  gradingScore.value = selectedSubmission.score ?? 90;
+  gradingMaxScore.value = selectedSubmission.maxScore || 100;
+  gradingFeedback.value = selectedSubmission.feedback || "";
+  gradingRecommendations.value = selectedSubmission.recommendations || "";
+  gradingInternalNotes.value = selectedSubmission.internalNotes || "";
+  gradeState.textContent = selectedSubmission.visibleToStudent
+    ? "Esta calificación ya está visible para el estudiante."
+    : "Pendiente por publicar al estudiante.";
+  gradeState.className = `admin-inline-state ${selectedSubmission.visibleToStudent ? "success" : ""}`;
 }
 
 function getRoleLabel(role) {
@@ -576,14 +1512,15 @@ function renderStaff() {
 
 function renderPractices() {
   practiceRows.innerHTML = practices
-    .map(([activity, date, status, note]) => {
+    .map((practice) => {
+      const [activity, date, status, note, fileName = "", format = ""] = practice;
       const className = status === "Completada" ? "done" : status === "En revisión" ? "review" : "pending";
       return `
         <tr>
           <td>${activity}</td>
           <td>${date}</td>
           <td><span class="status ${className}">${status}</span></td>
-          <td>${note}</td>
+          <td>${format ? `${format} · ` : ""}${fileName ? `${fileName} · ` : ""}${note}</td>
         </tr>
       `;
     })
@@ -670,10 +1607,21 @@ function renderAll() {
   renderStudents();
   renderPreEnrollments();
   renderStaff();
+  renderAdminMaterials();
+  renderAdminStudentProgress();
+  renderSubmissionReviewCenter();
+  renderStudentGrades();
+  renderCoachMessages();
   renderApprovals();
 }
 
 document.addEventListener("click", (event) => {
+  const navLink = event.target.closest(".nav-list a");
+  if (navLink) {
+    event.preventDefault();
+    showSection(navLink.getAttribute("href").replace("#", ""));
+  }
+
   const authOpenButton = event.target.closest("[data-auth-open]");
   if (authOpenButton) {
     openAuthPanel(authOpenButton.dataset.authOpen);
@@ -687,14 +1635,18 @@ document.addEventListener("click", (event) => {
   if (submitButton && !submitButton.disabled) {
     const moduleId = submitButton.dataset.submitModule;
     if (getModuleStatus(moduleId) === "available") {
-      state.approvals[moduleId] = "submitted";
-      persist();
-      renderAll();
+      openEvaluationModal(moduleId);
     }
   }
 
   const gradeInput = event.target.closest("[data-grade-module]");
   if (gradeInput) return;
+
+  const submitExamButton = event.target.closest("[data-submit-exam]");
+  if (submitExamButton && !submitExamButton.disabled) {
+    const exam = state.adminExams.find((item) => item.title === submitExamButton.dataset.submitExam);
+    if (exam) openEvaluationModal(exam.moduleId, exam.title);
+  }
 
   const approveButton = event.target.closest("[data-approve-module]");
   if (approveButton && !approveButton.disabled) {
@@ -716,6 +1668,27 @@ document.addEventListener("click", (event) => {
     renderModules();
   }
 
+  const resourceButton = event.target.closest("[data-open-resource]");
+  if (resourceButton) {
+    const material = state.adminMaterials.find((item) => item.title === resourceButton.dataset.openResource);
+    if (!material) return;
+    const moduleLabel = material.moduleId === "general"
+      ? "General"
+      : `Módulo ${modules.findIndex((module) => module.id === material.moduleId) + 1}`;
+    downloadTextFile(`${material.title.replaceAll(" ", "-").toLowerCase()}-recurso.txt`, [
+      "Almalead - Recurso académico",
+      `Título: ${material.title}`,
+      `Módulo: ${moduleLabel}`,
+      `Tipo: ${getMaterialTypeLabel(material.fileName, material.section)}`,
+      `Archivo: ${material.fileName}`,
+      "",
+      material.description,
+      "",
+      "En producción este botón abrirá o descargará el archivo privado desde Supabase Storage.",
+    ].join("\n"));
+    showToast(`Recurso abierto: ${material.title}`);
+  }
+
   if (event.target.matches("[data-open-panel='agenda']")) {
     document.querySelector("#agendaPanel").classList.add("open");
     document.querySelector("#agendaPanel").setAttribute("aria-hidden", "false");
@@ -724,6 +1697,55 @@ document.addEventListener("click", (event) => {
   if (event.target.matches(".close-panel") || event.target.id === "agendaPanel") {
     document.querySelector("#agendaPanel").classList.remove("open");
     document.querySelector("#agendaPanel").setAttribute("aria-hidden", "true");
+  }
+
+  const reviewButton = event.target.closest("[data-review-submission]");
+  if (reviewButton) {
+    reviewState.textContent = `Revisando: ${reviewButton.dataset.reviewSubmission}. Puedes aprobar o solicitar ajustes.`;
+    reviewState.className = "admin-inline-state success";
+    showSection("admin");
+  }
+
+  const adminStudentButton = event.target.closest("[data-admin-student]");
+  if (adminStudentButton) {
+    state.selectedStudentId = adminStudentButton.dataset.adminStudent;
+    localStorage.setItem("almalead.selectedStudentId", state.selectedStudentId);
+    renderAdminStudentProgress();
+  }
+
+  const studentCard = event.target.closest("[data-view-student]");
+  if (studentCard) {
+    state.selectedStudentId = studentCard.dataset.viewStudent;
+    localStorage.setItem("almalead.selectedStudentId", state.selectedStudentId);
+    renderAdminStudentProgress();
+    showSection("admin");
+  }
+
+  const reminderButton = event.target.closest("[data-student-reminder]");
+  if (reminderButton) {
+    const student = getStudentProfile(reminderButton.dataset.studentReminder);
+    showToast(`Recordatorio preparado para ${student.name}.`);
+  }
+
+  const followupButton = event.target.closest("[data-student-followup]");
+  if (followupButton) {
+    const student = getStudentProfile(followupButton.dataset.studentFollowup);
+    showToast(`Seguimiento registrado para ${student.name}.`);
+    student.lastActivity = "Ahora";
+    renderAdminStudentProgress();
+  }
+
+  const submissionButton = event.target.closest("[data-select-submission]");
+  if (submissionButton) {
+    state.selectedSubmissionId = submissionButton.dataset.selectSubmission;
+    localStorage.setItem("almalead.selectedSubmissionId", state.selectedSubmissionId);
+    renderSubmissionReviewCenter();
+  }
+});
+
+window.addEventListener("hashchange", () => {
+  if (!document.body.classList.contains("auth-locked")) {
+    showSection(location.hash.replace("#", "") || "resumen", { updateHash: false });
   }
 });
 
@@ -745,18 +1767,154 @@ document.addEventListener("change", (event) => {
 });
 
 document.querySelector("#saveReflection").addEventListener("click", () => {
-  localStorage.setItem("almalead.reflection", reflection.value);
-  saveState.textContent = "Bitácora guardada en este navegador.";
+  const text = reflection.value.trim();
+  if (!text) {
+    saveState.textContent = "Escribe una reflexión antes de guardar.";
+    saveState.className = "save-state error";
+    return;
+  }
+  state.reflection = text;
+  state.journalEntries = [
+    {
+      moduleId: journalModule.value,
+      dimension: journalDimension.value,
+      text,
+      createdAt: getTodayISO(),
+    },
+    ...state.journalEntries,
+  ];
+  localStorage.setItem("almalead.reflection", state.reflection);
+  persist();
+  saveState.textContent = "Entrada de bitácora guardada.";
+  saveState.className = "save-state success";
+  reflection.value = "";
+  renderJournal();
   renderCertification();
 });
 
+syncCalendar.addEventListener("click", (event) => {
+  downloadTextFile("almalead-agenda-certificacion.ics", buildCalendarICS());
+  event.target.textContent = "Agenda descargada";
+  showToast("Agenda descargada. Ábrela para agregarla a Google Calendar, Apple Calendar u Outlook.");
+  setTimeout(() => {
+    event.target.textContent = "Sincronizar agenda";
+  }, 1800);
+});
+
+newJournalEntry.addEventListener("click", () => {
+  showSection("bitacora");
+  reflection.focus();
+  saveState.textContent = "Escribe tu reflexión y guárdala cuando esté lista.";
+  saveState.className = "save-state";
+});
+
+topbarMaterials.addEventListener("click", () => {
+  showSection("materiales");
+});
+
+topbarPending.addEventListener("click", () => {
+  showSection("evaluaciones");
+  showToast("Revisa evaluaciones pendientes, entregas en revisión y calificaciones publicadas.");
+});
+
+topbarProfile.addEventListener("click", () => {
+  showSection("resumen");
+});
+
 document.querySelector("#addPractice").addEventListener("click", () => {
-  const next = practices.length + 1;
+  practiceForm.classList.add("open");
+  practiceForm.setAttribute("aria-hidden", "false");
+  practiceObserved.focus();
+});
+
+cancelPractice.addEventListener("click", () => {
+  practiceForm.reset();
+  practiceFileLabel.textContent = "Adjuntar evidencia: audio, video, imagen, documento o ZIP";
+  practiceForm.classList.remove("open");
+  practiceForm.setAttribute("aria-hidden", "true");
+  practiceFormState.textContent = "La entrega quedará visible en Dirección académica para escuchar, ver, leer, descargar, comentar y calificar.";
+  practiceFormState.className = "admin-inline-state";
+});
+
+practiceFileInput.addEventListener("change", () => {
+  const file = practiceFileInput.files[0];
+  practiceFileLabel.textContent = file ? file.name : "Adjuntar evidencia: audio, video, imagen, documento o ZIP";
+});
+
+practiceForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const file = practiceFileInput.files[0];
+  if (!file) {
+    practiceFormState.textContent = "Adjunta el audio, video, imagen, documento o ZIP de la práctica.";
+    practiceFormState.className = "admin-inline-state error";
+    return;
+  }
+
+  const module = modules.find((item) => item.id === practiceModule.value) || modules[0];
+  const moduleNumber = modules.findIndex((item) => item.id === module.id) + 1;
+  const submittedAt = getTodayISO();
+  const title = `${practiceType.value} · ${practiceObserved.value.trim()}`;
+  const note = practiceContext.value.trim() || "Sin comentario adicional del estudiante.";
+  const storagePath = `demo/practicas/modulo-${moduleNumber}/${file.name}`;
+
   practices = [
     ...practices,
-    [`Evidencia registrada ${next}`, new Date().toISOString().slice(0, 10), "En revisión", "Pendiente de retroalimentación académica"],
+    [title, submittedAt, "En revisión", note, file.name, practiceFormat.value],
   ];
+  evidenceItems.unshift([file.name, file.type || practiceFormat.value, `Módulo ${moduleNumber} · ${practiceType.value}`, "En revisión"]);
+  state.submissionReviews = [
+    {
+      id: `practice-${Date.now()}`,
+      studentName: "Estudiante Almalead",
+      studentId: "demo-estudiante",
+      moduleName: `Módulo ${moduleNumber}`,
+      title,
+      fileName: file.name,
+      mimeType: file.type || practiceFormat.value,
+      storagePath,
+      submittedAt,
+      status: "En revisión",
+      score: null,
+      maxScore: 100,
+      feedback: "",
+      recommendations: "",
+      internalNotes: "",
+      visibleToStudent: false,
+      observed: practiceObserved.value.trim(),
+      practiceType: practiceType.value,
+      practiceFormat: practiceFormat.value,
+      studentComment: note,
+    },
+    ...state.submissionReviews,
+  ];
+  state.selectedSubmissionId = state.submissionReviews[0].id;
+  persistStudentWork();
+  persistAdminContent();
+  practiceForm.reset();
+  practiceFileLabel.textContent = "Adjuntar evidencia: audio, video, imagen, documento o ZIP";
+  practiceForm.classList.remove("open");
+  practiceForm.setAttribute("aria-hidden", "true");
   renderAll();
+  showToast("Práctica enviada a revisión académica.");
+});
+
+studentUploadButton.addEventListener("click", () => {
+  showSection("practicas");
+  practiceForm.classList.add("open");
+  practiceForm.setAttribute("aria-hidden", "false");
+  practiceObserved.focus();
+});
+
+studentEvidenceInput.addEventListener("change", () => {
+  const files = [...studentEvidenceInput.files];
+  if (!files.length) return;
+  files.forEach((file) => {
+    evidenceItems.unshift([file.name, file.type || "archivo", "Carga del estudiante", "En revisión"]);
+  });
+  persistStudentWork();
+  renderEvidenceLibrary();
+  showToast(`${files.length} evidencia${files.length === 1 ? "" : "s"} enviada${files.length === 1 ? "" : "s"} a revisión.`);
+  studentEvidenceInput.value = "";
 });
 
 document.querySelector("#exportSnapshot").addEventListener("click", async (event) => {
@@ -772,6 +1930,272 @@ document.querySelector("#exportSnapshot").addEventListener("click", async (event
   setTimeout(() => {
     event.target.textContent = "Exportar resumen";
   }, 1600);
+});
+
+focusPreEnrollment.addEventListener("click", () => {
+  showSection("admin");
+  preEnrollmentForm.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+examFileInput.addEventListener("change", () => {
+  examFileLabel.textContent = getFileSummary(examFileInput.files);
+});
+
+materialFileInput.addEventListener("change", () => {
+  materialFileLabel.textContent = getFileSummary(materialFileInput.files);
+});
+
+function collectExam(status) {
+  const module = modules.find((item) => item.id === examModule.value) || modules[0];
+  return {
+    title: examTitle.value.trim() || "Evaluación sin título",
+    moduleId: module.id,
+    moduleName: module.title,
+    dueDate: examDueDate.value || getTodayISO(),
+    deliveryType: examDeliveryType.value,
+    instructions: examInstructions.value.trim() || "Revisa las instrucciones entregadas por dirección académica.",
+    fileName: getFileSummary(examFileInput.files),
+    status,
+  };
+}
+
+function saveExam(status) {
+  const exam = collectExam(status);
+  state.adminExams = [exam, ...state.adminExams.filter((item) => item.title !== exam.title)];
+  persistAdminContent();
+  renderEvaluations();
+  examState.textContent = status === "Publicado"
+    ? "Evaluación publicada en el panel del estudiante."
+    : "Borrador guardado en este navegador.";
+  examState.className = "admin-inline-state success";
+  showToast(examState.textContent);
+}
+
+saveExamDraft.addEventListener("click", () => saveExam("Borrador"));
+publishExam.addEventListener("click", () => saveExam("Publicado"));
+
+function collectMaterial(status) {
+  return {
+    title: materialTitle.value.trim() || "Material sin título",
+    description: materialText.value.trim() || "Material compartido por dirección académica.",
+    section: materialSection.value,
+    moduleId: materialModule.value,
+    fileName: getFileSummary(materialFileInput.files),
+    status,
+    createdAt: getTodayISO(),
+  };
+}
+
+function saveMaterial(status) {
+  const material = collectMaterial(status);
+  state.adminMaterials = [material, ...state.adminMaterials.filter((item) => item.title !== material.title)];
+  persistAdminContent();
+  renderResources();
+  renderLessons();
+  renderJournal();
+  renderAdminMaterials();
+  materialState.textContent = status === "Publicado"
+    ? "Material publicado en el panel del estudiante."
+    : "Material guardado como borrador.";
+  materialState.className = "admin-inline-state success";
+  showToast(materialState.textContent);
+}
+
+saveMaterialDraft.addEventListener("click", () => saveMaterial("Borrador"));
+publishMaterial.addEventListener("click", () => saveMaterial("Publicado"));
+
+requestReviewChanges.addEventListener("click", () => {
+  reviewState.textContent = "Solicitud de ajustes registrada para el estudiante.";
+  reviewState.className = "admin-inline-state success";
+  showToast("Solicitud de ajustes registrada.");
+});
+
+approveReviewedModule.addEventListener("click", () => {
+  const firstSubmitted = modules.find((module) => getModuleStatus(module.id) === "submitted");
+  if (firstSubmitted) {
+    state.approvals[firstSubmitted.id] = "approved";
+    persist();
+    renderAll();
+  }
+  reviewState.textContent = firstSubmitted
+    ? `Módulo aprobado: ${firstSubmitted.title}.`
+    : "No hay módulos enviados pendientes de aprobación.";
+  reviewState.className = "admin-inline-state success";
+  showToast(reviewState.textContent);
+});
+
+downloadSubmission.addEventListener("click", () => {
+  const submission = getSelectedSubmission();
+  const content = [
+    "Almalead - entrega académica",
+    `Estudiante: ${submission.studentName}`,
+    `Módulo: ${submission.moduleName}`,
+    `Entrega: ${submission.title}`,
+    submission.practiceType ? `Tipo de práctica: ${submission.practiceType}` : "",
+    submission.observed ? `Observado/coachee/caso: ${submission.observed}` : "",
+    submission.practiceFormat ? `Formato declarado: ${submission.practiceFormat}` : "",
+    submission.studentComment ? `Comentario del estudiante: ${submission.studentComment}` : "",
+    `Archivo: ${submission.fileName}`,
+    `Tipo: ${submission.mimeType}`,
+    `Ruta Supabase Storage: almalead-evidence/${submission.storagePath}`,
+    `Fecha de envío: ${submission.submittedAt}`,
+    `Estado: ${submission.status}`,
+  ].filter(Boolean).join("\n");
+  downloadTextFile(`${submission.studentName}-${submission.moduleName}-entrega.txt`.replaceAll(" ", "-").toLowerCase(), content);
+  showToast("Ficha de entrega descargada. En producción descargará el archivo privado desde Supabase.");
+});
+
+publishGrade.addEventListener("click", () => {
+  const submission = getSelectedSubmission();
+  submission.score = Number(gradingScore.value || 0);
+  submission.maxScore = Number(gradingMaxScore.value || 100);
+  submission.feedback = gradingFeedback.value.trim();
+  submission.recommendations = gradingRecommendations.value.trim();
+  submission.internalNotes = gradingInternalNotes.value.trim();
+  submission.status = "Calificada";
+  submission.visibleToStudent = true;
+  persistAdminContent();
+  renderSubmissionReviewCenter();
+  renderStudentGrades();
+  showToast(`Calificación publicada para ${submission.studentName}.`);
+});
+
+function buildCoachEmailBody() {
+  return [
+    `Coach: ${coachRecipient.value}`,
+    `Asunto: ${coachSubject.value.trim()}`,
+    "",
+    coachMessage.value.trim(),
+    "",
+    "Enviado desde el portal Almalead.",
+  ].join("\n");
+}
+
+coachMessageForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const message = {
+    coach: coachRecipient.value,
+    subject: coachSubject.value.trim(),
+    message: coachMessage.value.trim(),
+    emailTo: "coaching@javipenaloza.com",
+    sentAt: getTodayISO(),
+    status: "Enviado local",
+  };
+  state.coachMessages = [message, ...state.coachMessages];
+  persistAdminContent();
+  renderCoachMessages();
+  coachMessageState.textContent = "Mensaje preparado para coaching@javipenaloza.com.";
+  coachMessageState.className = "admin-inline-state success";
+  const mailto = `mailto:coaching@javipenaloza.com?subject=${encodeURIComponent(`[Almalead] ${message.subject} - ${message.coach}`)}&body=${encodeURIComponent(buildCoachEmailBody())}`;
+  window.location.href = mailto;
+  showToast("Mensaje registrado. Se abrirá tu correo para enviarlo al equipo.");
+});
+
+copyCoachMessage.addEventListener("click", async () => {
+  const text = `Para: coaching@javipenaloza.com\n${buildCoachEmailBody()}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    coachMessageState.textContent = "Mensaje copiado al portapapeles.";
+    coachMessageState.className = "admin-inline-state success";
+    showToast("Mensaje copiado.");
+  } catch {
+    coachMessageState.textContent = "No se pudo copiar automáticamente. Selecciona el texto y cópialo manualmente.";
+    coachMessageState.className = "admin-inline-state error";
+  }
+});
+
+closeEvaluationModal.addEventListener("click", closeEvaluationModalPanel);
+
+evaluationModal.addEventListener("click", (event) => {
+  if (event.target === evaluationModal) closeEvaluationModalPanel();
+});
+
+evaluationFileInput.addEventListener("change", () => {
+  const file = evaluationFileInput.files[0];
+  evaluationFileLabel.textContent = file ? file.name : "Seleccionar archivo de entrega";
+});
+
+downloadEvaluationGuide.addEventListener("click", () => {
+  const evaluation = getEvaluationGuide(state.selectedEvaluationModuleId);
+  if (!evaluation) return;
+  downloadTextFile(
+    evaluation.guide.resourceName.replace(".pdf", ".txt"),
+    buildEvaluationGuideText(evaluation),
+  );
+  evaluationModalState.textContent = "Guía descargada. Realiza la actividad y adjunta tu evidencia cuando esté lista.";
+  evaluationModalState.className = "admin-inline-state success";
+  showToast("Guía de evaluación descargada.");
+});
+
+confirmEvaluationSubmission.addEventListener("click", () => {
+  const evaluation = state.selectedEvaluationExamTitle
+    ? getExamEvaluation(state.selectedEvaluationExamTitle)
+    : getEvaluationGuide(state.selectedEvaluationModuleId);
+  const file = evaluationFileInput.files[0];
+  if (!evaluation) return;
+
+  if (!file) {
+    evaluationModalState.textContent = "Adjunta primero el archivo, audio, video, imagen o documento de tu entrega.";
+    evaluationModalState.className = "admin-inline-state error";
+    return;
+  }
+
+  const submittedAt = getTodayISO();
+  state.approvals[evaluation.module.id] = "submitted";
+  practices = [
+    ...practices,
+    [
+      state.selectedEvaluationExamTitle || `Evaluación módulo ${evaluation.moduleNumber}: ${evaluation.module.title}`,
+      submittedAt,
+      "En revisión",
+      `Archivo: ${file.name}. ${evaluationStudentComment.value.trim() || "Sin comentario adicional."}`,
+    ],
+  ];
+  state.submissionReviews = [
+    {
+      id: `sub-local-${evaluation.module.id}-${Date.now()}`,
+      studentName: "Estudiante Almalead",
+      studentId: "demo-estudiante",
+      moduleName: `Módulo ${evaluation.moduleNumber}`,
+      title: state.selectedEvaluationExamTitle || evaluation.module.evaluation,
+      fileName: file.name,
+      mimeType: file.type || "archivo",
+      storagePath: `demo/${evaluation.module.id}/${file.name}`,
+      submittedAt,
+      status: "En revisión",
+      score: null,
+      maxScore: 100,
+      feedback: "",
+      recommendations: "",
+      internalNotes: "",
+      visibleToStudent: false,
+    },
+    ...state.submissionReviews,
+  ];
+  state.selectedSubmissionId = state.submissionReviews[0].id;
+  persist();
+  persistAdminContent();
+  renderAll();
+  closeEvaluationModalPanel();
+  showSection("practicas");
+  showToast("Evaluación enviada a revisión académica.");
+});
+
+exportEvidenceReport.addEventListener("click", () => {
+  const header = "Estudiante,Módulo,Entrega,Archivo,Ruta Storage,Estado,Calificación,Recomendaciones,Visible";
+  const rows = state.submissionReviews.map((submission) => [
+    submission.studentName,
+    submission.moduleName,
+    submission.title,
+    submission.fileName,
+    `almalead-evidence/${submission.storagePath}`,
+    submission.status,
+    submission.score == null ? "" : `${submission.score}/${submission.maxScore}`,
+    submission.recommendations || "",
+    submission.visibleToStudent ? "Sí" : "No",
+  ].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","));
+  downloadTextFile("almalead-reporte-entregas.csv", [header, ...rows].join("\n"));
+  showToast("Reporte de entregas descargado.");
 });
 
 preEnrollmentForm.addEventListener("submit", (event) => {
@@ -833,6 +2257,7 @@ staffForm.addEventListener("submit", (event) => {
 reflection.value = state.reflection;
 renderAll();
 restoreSession();
+showSection(location.hash.replace("#", "") || "resumen", { updateHash: false, instant: true });
 
 loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -847,7 +2272,7 @@ loginForm.addEventListener("submit", (event) => {
     return;
   }
 
-  const sessionUser = { name: user.name, initials: user.initials };
+  const sessionUser = { name: user.name, initials: user.initials, role: user.role || "student" };
   sessionStorage.setItem("almalead.session", JSON.stringify(sessionUser));
   loginState.textContent = "Acceso aprobado. Entrando al portal...";
   loginState.className = "login-state success";
@@ -881,6 +2306,7 @@ registerForm.addEventListener("submit", (event) => {
     password,
     name: preEnrollment.name,
     initials: preEnrollment.initials,
+    role: "student",
   };
   preEnrollment.status = "claimed";
   state.preEnrollments = [...preEnrollments];
@@ -906,6 +2332,7 @@ logoutButton.addEventListener("click", () => {
   loginState.textContent = "Acceso demo: estudiante / almalead2026";
   loginState.className = "login-state";
   document.body.classList.add("auth-locked");
+  document.body.removeAttribute("data-role");
 });
 
 passwordEye.addEventListener("click", () => {

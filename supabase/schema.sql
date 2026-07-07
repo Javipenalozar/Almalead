@@ -6,7 +6,7 @@ create extension if not exists "pgcrypto";
 create type public.app_role as enum ('student', 'mentor', 'coach', 'professor', 'admin');
 create type public.progress_status as enum ('locked', 'available', 'submitted', 'approved', 'rejected');
 create type public.practice_status as enum ('pending', 'in_review', 'completed', 'rejected');
-create type public.material_type as enum ('guide', 'pdf', 'video', 'link', 'worksheet');
+create type public.material_type as enum ('guide', 'pdf', 'video', 'audio', 'recording', 'link', 'worksheet', 'document', 'compressed');
 create type public.pre_enrollment_status as enum ('pending', 'claimed', 'blocked', 'expired');
 create type public.exam_status as enum ('draft', 'published', 'closed', 'archived');
 create type public.evidence_kind as enum ('text', 'audio', 'video', 'image', 'document', 'compressed', 'mixed');
@@ -79,6 +79,9 @@ create table public.module_progress (
   enrollment_id uuid not null references public.enrollments(id) on delete cascade,
   module_id uuid not null references public.modules(id) on delete cascade,
   status public.progress_status not null default 'locked',
+  score numeric(5, 2),
+  max_score numeric(5, 2) not null default 100,
+  grade_visible_to_student boolean not null default false,
   submitted_at timestamptz,
   reviewed_at timestamptz,
   reviewed_by uuid references public.profiles(id) on delete set null,
@@ -98,7 +101,14 @@ create table public.evaluation_submissions (
   reviewed_at timestamptz,
   reviewed_by uuid references public.profiles(id) on delete set null,
   status public.progress_status not null default 'submitted',
-  feedback text
+  score numeric(5, 2),
+  max_score numeric(5, 2) not null default 100,
+  rubric jsonb not null default '{}'::jsonb,
+  feedback text,
+  recommendations text,
+  internal_reviewer_notes text,
+  grade_visible_to_student boolean not null default false,
+  graded_at timestamptz
 );
 
 create table public.practices (
@@ -163,6 +173,54 @@ create table public.evidence_files (
   file_size_bytes bigint,
   uploaded_at timestamptz not null default now()
 );
+
+create table public.coach_messages (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references public.profiles(id) on delete cascade,
+  coach_name text not null check (coach_name in ('Javi', 'Jedi', 'Nico')),
+  email_to text not null default 'coaching@javipenaloza.com',
+  subject text not null,
+  message text not null,
+  status text not null default 'sent',
+  created_at timestamptz not null default now(),
+  read_at timestamptz,
+  resolved_at timestamptz
+);
+
+create view public.academic_submission_review
+with (security_invoker = true)
+as
+select
+  es.id as submission_id,
+  es.student_id,
+  p.full_name as student_name,
+  p.email as student_email,
+  e.id as enrollment_id,
+  c.name as cohort_name,
+  m.module_number,
+  m.title as module_title,
+  es.status,
+  es.score,
+  es.max_score,
+  es.grade_visible_to_student,
+  es.feedback,
+  es.recommendations,
+  es.submitted_at,
+  es.reviewed_at,
+  es.graded_at,
+  ef.id as evidence_file_id,
+  ef.storage_bucket,
+  ef.storage_path,
+  ef.file_name,
+  ef.mime_type,
+  ef.file_size_bytes
+from public.evaluation_submissions es
+join public.profiles p on p.id = es.student_id
+join public.module_progress mp on mp.id = es.module_progress_id
+join public.modules m on m.id = mp.module_id
+join public.enrollments e on e.id = mp.enrollment_id
+join public.cohorts c on c.id = e.cohort_id
+left join public.evidence_files ef on ef.submission_id = es.id;
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -260,6 +318,7 @@ alter table public.reflections enable row level security;
 alter table public.materials enable row level security;
 alter table public.exams enable row level security;
 alter table public.evidence_files enable row level security;
+alter table public.coach_messages enable row level security;
 
 create policy "Profiles can read themselves"
 on public.profiles for select
@@ -420,6 +479,19 @@ on public.evidence_files for all
 using (student_id = auth.uid() or public.is_academic_staff())
 with check (student_id = auth.uid() or public.is_academic_staff());
 
+create policy "Students create coach messages"
+on public.coach_messages for insert
+with check (student_id = auth.uid() and email_to = 'coaching@javipenaloza.com');
+
+create policy "Students read their coach messages"
+on public.coach_messages for select
+using (student_id = auth.uid() or public.is_academic_staff());
+
+create policy "Academic staff manage coach messages"
+on public.coach_messages for all
+using (public.is_academic_staff())
+with check (public.is_academic_staff());
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'almalead-evidence',
@@ -497,4 +569,5 @@ values
   ('Marco O-L-E-C', 'Observador, lenguaje, emoción y cuerpo como eje metodológico.', 'guide', null),
   ('Práctica supervisada', 'Role plays, grabaciones, feedback y casos reales de la cohorte.', 'worksheet', null),
   ('Métricas de progreso', 'Conversaciones poderosas semanales, promesas cumplidas y acciones diarias de 5 minutos.', 'guide', null),
-  ('Marco ético', 'Límites del coaching, consentimiento informado y derivación responsable.', 'pdf', null);
+  ('Marco ético', 'Límites del coaching, consentimiento informado y derivación responsable.', 'pdf', null),
+  ('Grabaciones de clases virtuales', 'Repositorio privado de grabaciones por módulo para estudiantes activos.', 'recording', null);

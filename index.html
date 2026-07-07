@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260707-fonts" />
+    <link rel="stylesheet" href="styles.css?v=20260707-scroll-agenda" />
   </head>
   <body class="auth-locked">
     <section class="login-screen" id="loginScreen" aria-label="Ingreso a Almalead">
@@ -110,9 +110,10 @@
           <a href="#materiales">Materiales</a>
           <a href="#practicas">Prácticas</a>
           <a href="#evidencias">Evidencias</a>
+          <a href="#mensajes">Mensajes</a>
           <a href="#certificacion">Certificación</a>
-          <a href="#estudiantes">Estudiantes</a>
-          <a href="#admin">Dirección académica</a>
+          <a href="#estudiantes" data-role-only="admin">Estudiantes</a>
+          <a href="#admin" data-role-only="admin">Dirección académica</a>
         </nav>
 
         <section class="mentor-panel">
@@ -131,9 +132,9 @@
             <p class="topbar-copy">Coaching ontológico, emocional y educativo con ciencia aplicada, práctica y ética.</p>
           </div>
           <div class="topbar-actions">
-            <button class="icon-button" type="button" title="Buscar">⌕</button>
-            <button class="icon-button" type="button" title="Notificaciones">!</button>
-            <button class="profile-button" type="button">
+            <button class="ghost-button compact-action" type="button" id="topbarMaterials">Materiales</button>
+            <button class="ghost-button compact-action" type="button" id="topbarPending">Pendientes</button>
+            <button class="profile-button" type="button" id="topbarProfile">
               <span>JP</span>
               <span id="profileName">Javier Peñaloza</span>
             </button>
@@ -141,7 +142,7 @@
           </div>
         </header>
 
-        <section id="resumen" class="summary-grid">
+        <section id="resumen" class="summary-grid portal-section active" data-section-title="Proceso de certificación Almalead" data-section-copy="Coaching ontológico, emocional y educativo con ciencia aplicada, práctica y ética.">
           <article class="progress-hero">
             <div>
               <p class="eyebrow">Academia de Coaching Almalead</p>
@@ -170,13 +171,13 @@
           </article>
         </section>
 
-        <section id="calendario" class="content-band calendar-band">
+        <section id="calendario" class="content-band calendar-band portal-section" data-section-title="Calendario académico" data-section-copy="Agenda de clase, activación de módulos y fechas de entrega de la cohorte.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Agenda de cohorte</p>
               <h2>Calendario académico</h2>
             </div>
-            <button class="ghost-button" type="button">Sincronizar agenda</button>
+            <button class="ghost-button" type="button" id="syncCalendar">Sincronizar agenda</button>
           </div>
           <div class="calendar-layout">
             <article class="calendar-focus">
@@ -192,7 +193,7 @@
           </div>
         </section>
 
-        <section id="ruta" class="content-band">
+        <section id="ruta" class="content-band portal-section" data-section-title="Ruta académica" data-section-copy="Explora el avance por módulos y envía cada evaluación cuando esté disponible.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Malla académica</p>
@@ -207,7 +208,7 @@
           <div class="module-list" id="moduleList"></div>
         </section>
 
-        <section id="lecciones" class="content-band lessons-band">
+        <section id="lecciones" class="content-band lessons-band portal-section" data-section-title="Lecciones y contenidos" data-section-copy="Aula por módulo con contenidos, progreso y recursos recomendados.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Aula por módulo</p>
@@ -217,23 +218,30 @@
           <div class="lesson-grid" id="lessonGrid"></div>
         </section>
 
-        <section id="evaluaciones" class="content-band">
+        <section id="evaluaciones" class="content-band portal-section" data-section-title="Evaluaciones" data-section-copy="Entregas académicas, estado de revisión y aprobación por módulo.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Evaluación por módulo</p>
               <h2>Entregas académicas</h2>
             </div>
           </div>
+          <div class="student-grade-panel">
+            <div>
+              <p class="eyebrow">Mis calificaciones</p>
+              <h3>Resultados publicados</h3>
+            </div>
+            <div class="grade-list" id="studentGradeList"></div>
+          </div>
           <div class="evaluation-grid" id="evaluationList"></div>
         </section>
 
-        <section id="bitacora" class="content-band journal-band">
+        <section id="bitacora" class="content-band journal-band portal-section" data-section-title="Bitácora O-L-E-C" data-section-copy="Registro personal de observador, lenguaje, emoción y cuerpo durante el proceso.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Proceso personal</p>
               <h2>Bitácora O-L-E-C</h2>
             </div>
-            <button class="primary-button" type="button">Nueva entrada</button>
+            <button class="primary-button" type="button" id="newJournalEntry">Nueva entrada</button>
           </div>
           <div class="journal-layout">
             <article class="olec-map">
@@ -246,11 +254,50 @@
               </div>
               <p>Seguimiento semanal de observador, lenguaje, emoción y cuerpo.</p>
             </article>
-            <div class="journal-list" id="journalList"></div>
+            <div class="journal-workspace">
+              <div class="journal-prompt-list" id="journalPromptList"></div>
+              <aside class="tool-panel journal-editor-panel">
+                <p class="eyebrow">Bitácora reflexiva</p>
+                <h2>Registro semanal</h2>
+                <div class="admin-form-grid">
+                  <label>
+                    Módulo
+                    <select id="journalModule">
+                      <option value="m1">Módulo 1</option>
+                      <option value="m2">Módulo 2</option>
+                      <option value="m3">Módulo 3</option>
+                      <option value="m4">Módulo 4</option>
+                      <option value="m5">Módulo 5</option>
+                      <option value="m6">Módulo 6</option>
+                      <option value="m7">Módulo 7</option>
+                      <option value="m8">Módulo 8</option>
+                      <option value="m9">Módulo 9</option>
+                      <option value="m10">Módulo 10</option>
+                      <option value="m11">Módulo 11</option>
+                      <option value="m12">Módulo 12</option>
+                    </select>
+                  </label>
+                  <label>
+                    Dimensión
+                    <select id="journalDimension">
+                      <option>Observador</option>
+                      <option>Lenguaje</option>
+                      <option>Emoción</option>
+                      <option>Cuerpo</option>
+                    </select>
+                  </label>
+                </div>
+                <label for="reflection">Aprendizaje clave</label>
+                <textarea id="reflection" rows="8" placeholder="Escribe aquí tu reflexión de la semana..."></textarea>
+                <button class="primary-button" type="button" id="saveReflection">Guardar bitácora</button>
+                <p class="save-state" id="saveState">Sin cambios recientes.</p>
+              </aside>
+              <div class="journal-list" id="journalList"></div>
+            </div>
           </div>
         </section>
 
-        <section id="materiales" class="content-band two-column">
+        <section id="materiales" class="content-band two-column portal-section" data-section-title="Material de estudio" data-section-copy="Biblioteca académica con documentos, guías, textos y recursos compartidos por dirección académica.">
           <div>
             <div class="section-heading compact">
               <div>
@@ -262,16 +309,13 @@
           </div>
 
           <aside class="tool-panel">
-            <p class="eyebrow">Bitácora reflexiva</p>
-            <h2>Registro semanal</h2>
-            <label for="reflection">Aprendizaje clave</label>
-            <textarea id="reflection" rows="8" placeholder="Escribe aquí tu reflexión de la semana..."></textarea>
-            <button class="primary-button" type="button" id="saveReflection">Guardar bitácora</button>
-            <p class="save-state" id="saveState">Sin cambios recientes.</p>
+            <p class="eyebrow">Uso académico</p>
+            <h2>Biblioteca publicada</h2>
+            <p>Los documentos, videos, audios y guías que suba dirección académica aparecerán aquí y también dentro del módulo correspondiente.</p>
           </aside>
         </section>
 
-        <section id="practicas" class="content-band">
+        <section id="practicas" class="content-band portal-section" data-section-title="Prácticas y entregables" data-section-copy="Registro de evidencias aplicadas, conversaciones, prácticas de rol y casos supervisados.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Evidencia aplicada</p>
@@ -279,6 +323,66 @@
             </div>
             <button class="primary-button" type="button" id="addPractice">Registrar evidencia</button>
           </div>
+          <form class="practice-intake-panel" id="practiceForm" aria-hidden="true">
+            <div class="admin-form-grid">
+              <label>
+                Tipo de práctica
+                <select id="practiceType" required>
+                  <option>Conversación de coaching</option>
+                  <option>Práctica de rol</option>
+                  <option>Observación O-L-E-C</option>
+                  <option>Bitácora aplicada</option>
+                  <option>Caso supervisado</option>
+                  <option>Otro</option>
+                </select>
+              </label>
+              <label>
+                Módulo relacionado
+                <select id="practiceModule" required>
+                  <option value="m1">Módulo 1</option>
+                  <option value="m2">Módulo 2</option>
+                  <option value="m3">Módulo 3</option>
+                  <option value="m4">Módulo 4</option>
+                  <option value="m5">Módulo 5</option>
+                  <option value="m6">Módulo 6</option>
+                  <option value="m7">Módulo 7</option>
+                  <option value="m8">Módulo 8</option>
+                  <option value="m9">Módulo 9</option>
+                  <option value="m10">Módulo 10</option>
+                  <option value="m11">Módulo 11</option>
+                  <option value="m12">Módulo 12</option>
+                </select>
+              </label>
+              <label>
+                Observado / coachee / caso
+                <input id="practiceObserved" type="text" placeholder="Ej. coachee iniciales M. R., equipo comercial, caso personal..." required />
+              </label>
+              <label>
+                Formato de evidencia
+                <select id="practiceFormat" required>
+                  <option>Video</option>
+                  <option>Audio</option>
+                  <option>Documento</option>
+                  <option>Imagen</option>
+                  <option>Presentación</option>
+                  <option>Archivo comprimido</option>
+                </select>
+              </label>
+            </div>
+            <label class="admin-textarea">
+              Contexto de la práctica
+              <textarea id="practiceContext" rows="4" placeholder="Describe qué se observó, objetivo de la práctica, acuerdos éticos y qué quieres que revise el equipo académico."></textarea>
+            </label>
+            <label class="evaluation-file-drop">
+              <span id="practiceFileLabel">Adjuntar evidencia: audio, video, imagen, documento o ZIP</span>
+              <input id="practiceFileInput" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*,audio/*,video/*" required />
+            </label>
+            <div class="admin-actions">
+              <button class="ghost-button" type="button" id="cancelPractice">Cancelar</button>
+              <button class="primary-button" type="submit">Enviar práctica a revisión</button>
+            </div>
+            <p class="admin-inline-state" id="practiceFormState">La entrega quedará visible en Dirección académica para escuchar, ver, leer, descargar, comentar y calificar.</p>
+          </form>
           <div class="practice-table-wrap">
             <table class="practice-table">
               <thead>
@@ -294,18 +398,61 @@
           </div>
         </section>
 
-        <section id="evidencias" class="content-band evidence-library-band">
+        <section id="evidencias" class="content-band evidence-library-band portal-section" data-section-title="Evidencias del estudiante" data-section-copy="Carpeta académica personal con archivos, estados y retroalimentación.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Carpeta académica</p>
               <h2>Evidencias del estudiante</h2>
             </div>
-            <button class="primary-button" type="button">Subir evidencia</button>
+            <button class="primary-button" type="button" id="studentUploadButton">Registrar evidencia</button>
           </div>
+          <input class="hidden-file-input" id="studentEvidenceInput" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*,audio/*,video/*" />
           <div class="evidence-library" id="evidenceLibrary"></div>
         </section>
 
-        <section id="certificacion" class="content-band certification-band">
+        <section id="mensajes" class="content-band portal-section" data-section-title="Mensajes a coaches" data-section-copy="Envía dudas, inquietudes o solicitudes de apoyo al equipo de coaches Almalead.">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Acompañamiento</p>
+              <h2>Mensajes a coaches</h2>
+            </div>
+            <span class="pill">coaching@javipenaloza.com</span>
+          </div>
+          <div class="message-layout">
+            <form class="coach-message-panel" id="coachMessageForm">
+              <div class="admin-form-grid">
+                <label>
+                  Coach destinatario
+                  <select id="coachRecipient" name="coach">
+                    <option value="Javi">Javi</option>
+                    <option value="Jedi">Jedi</option>
+                    <option value="Nico">Nico</option>
+                  </select>
+                </label>
+                <label>
+                  Asunto
+                  <input id="coachSubject" name="subject" type="text" value="Duda sobre mi proceso de certificación" required />
+                </label>
+              </div>
+              <label class="admin-textarea">
+                Mensaje
+                <textarea id="coachMessage" name="message" rows="7" required>Hola, tengo una inquietud sobre mi avance y quisiera orientación.</textarea>
+              </label>
+              <div class="admin-actions">
+                <button class="ghost-button" type="button" id="copyCoachMessage">Copiar mensaje</button>
+                <button class="primary-button" type="submit">Enviar al equipo</button>
+              </div>
+              <p class="admin-inline-state" id="coachMessageState">En producción se enviará automáticamente al correo del equipo de coaching.</p>
+            </form>
+            <aside class="coach-message-panel">
+              <p class="eyebrow">Historial local</p>
+              <h3>Mensajes enviados</h3>
+              <div class="admin-list" id="coachMessageList"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="certificacion" class="content-band certification-band portal-section" data-section-title="Certificación profesional" data-section-copy="Requisitos, avance y condiciones de cierre del proceso de certificación.">
           <div>
             <p class="eyebrow">Cierre del proceso</p>
             <h2>Certificación profesional</h2>
@@ -314,18 +461,18 @@
           <div class="checklist" id="certChecklist"></div>
         </section>
 
-        <section id="estudiantes" class="content-band student-band">
+        <section id="estudiantes" class="content-band student-band portal-section" data-role-only="admin" data-section-title="Gestión de estudiantes" data-section-copy="Seguimiento de avance, estados académicos y preinscripciones de la cohorte.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Dirección académica</p>
               <h2>Gestión de estudiantes</h2>
             </div>
-            <button class="primary-button" type="button">Agregar estudiante</button>
+            <button class="primary-button" type="button" id="focusPreEnrollment">Agregar estudiante</button>
           </div>
           <div class="student-grid" id="studentGrid"></div>
         </section>
 
-        <section id="admin" class="content-band admin-band">
+        <section id="admin" class="content-band admin-band portal-section" data-role-only="admin" data-section-title="Dirección académica" data-section-copy="Panel de administración para evaluaciones, materiales, archivos, estudiantes y aprobaciones.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Vista dirección académica</p>
@@ -351,6 +498,68 @@
               <strong>12 módulos</strong>
             </article>
           </div>
+
+          <section class="admin-progress-panel">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Progreso individual</p>
+                <h2>Seguimiento por estudiante</h2>
+              </div>
+              <span class="pill" id="cohortRiskSummary">Cargando cohorte</span>
+            </div>
+            <div class="student-progress-layout">
+              <div class="student-progress-list" id="adminStudentList"></div>
+              <article class="student-progress-detail" id="studentProgressDetail"></article>
+            </div>
+          </section>
+
+          <section class="admin-progress-panel review-center-panel">
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Centro de revisión</p>
+                <h2>Entregas, archivos y calificaciones</h2>
+              </div>
+              <button class="ghost-button" type="button" id="exportEvidenceReport">Descargar reporte</button>
+            </div>
+            <div class="review-center-layout">
+              <div class="submission-review-list" id="submissionReviewList"></div>
+              <article class="grading-panel">
+                <div>
+                  <p class="eyebrow">Calificación visible al estudiante</p>
+                  <h3 id="gradingTitle">Selecciona una entrega</h3>
+                  <p id="gradingMeta">El profesor puede revisar el archivo, dejar retroalimentación y publicar la nota.</p>
+                </div>
+                <div class="admin-form-grid">
+                  <label>
+                    Calificación
+                    <input id="gradingScore" type="number" min="0" max="100" value="90" />
+                  </label>
+                  <label>
+                    Escala
+                    <input id="gradingMaxScore" type="number" min="1" max="100" value="100" />
+                  </label>
+                </div>
+                <label class="admin-textarea">
+                  Retroalimentación para el estudiante
+                  <textarea id="gradingFeedback" rows="5">Buen avance. Reforzar precisión en compromisos medibles y evidencias de cierre.</textarea>
+                </label>
+                <label class="admin-textarea">
+                  Recomendaciones específicas
+                  <textarea id="gradingRecommendations" rows="4">Repetir la práctica con foco en pedidos claros, condiciones de satisfacción y cierre de compromisos.</textarea>
+                </label>
+                <label class="admin-textarea">
+                  Comentarios internos del revisor
+                  <textarea id="gradingInternalNotes" rows="3">Revisar continuidad en la próxima supervisión.</textarea>
+                </label>
+                <div class="admin-actions">
+                  <button class="ghost-button" type="button" id="downloadSubmission">Descargar entrega</button>
+                  <button class="primary-button" type="button" id="publishGrade">Publicar calificación</button>
+                </div>
+                <p class="admin-inline-state" id="gradeState">Las calificaciones publicadas aparecerán en Evaluaciones del estudiante.</p>
+              </article>
+            </div>
+          </section>
+
           <div class="admin-approval">
             <h3>Aprobación manual por estudiante</h3>
             <div class="practice-table-wrap">
@@ -381,23 +590,32 @@
               <div class="admin-form-grid">
                 <label>
                   Nombre del examen
-                  <input type="text" value="Evaluación práctica módulo 4" />
+                  <input id="examTitle" type="text" value="Evaluación práctica módulo 4" />
                 </label>
                 <label>
                   Módulo
-                  <select>
-                    <option>Diseño de futuro y coordinación de acciones</option>
-                    <option>Escucha profunda y retroalimentación transformadora</option>
-                    <option>Práctica supervisada I</option>
+                  <select id="examModule">
+                    <option value="m1">Módulo 1 · Fundamentos ontológicos y el observador</option>
+                    <option value="m2">Módulo 2 · Lenguaje que crea realidad</option>
+                    <option value="m3">Módulo 3 · Emoción y cuerpo</option>
+                    <option value="m4" selected>Módulo 4 · Diseño de futuro y coordinación de acciones</option>
+                    <option value="m5">Módulo 5 · Escucha profunda y retroalimentación transformadora</option>
+                    <option value="m6">Módulo 6 · PNL ética al servicio del proceso</option>
+                    <option value="m7">Módulo 7 · Coaching emocional aplicado</option>
+                    <option value="m8">Módulo 8 · Coaching educativo</option>
+                    <option value="m9">Módulo 9 · Ética profesional y consentimiento informado</option>
+                    <option value="m10">Módulo 10 · Práctica supervisada I</option>
+                    <option value="m11">Módulo 11 · Práctica supervisada II</option>
+                    <option value="m12">Módulo 12 · Integración, evaluación y certificación</option>
                   </select>
                 </label>
                 <label>
                   Fecha límite
-                  <input type="date" value="2026-07-08" />
+                  <input id="examDueDate" type="date" value="2026-07-08" />
                 </label>
                 <label>
                   Tipo de entrega
-                  <select>
+                  <select id="examDeliveryType">
                     <option>Mixta: texto, archivo, audio, video o imagen</option>
                     <option>Solo archivo</option>
                     <option>Solo audio/video</option>
@@ -406,17 +624,78 @@
               </div>
               <label class="admin-textarea">
                 Instrucciones para el estudiante
-                <textarea rows="5">Entrega una conversación grabada, una reflexión escrita y las evidencias del compromiso diseñado con tu coachee.</textarea>
+                <textarea id="examInstructions" rows="5">Entrega una conversación grabada, una reflexión escrita y las evidencias del compromiso diseñado con tu coachee.</textarea>
               </label>
               <div class="upload-dropzone">
                 <strong>Adjuntar examen base</strong>
-                <span>PDF, Word, PowerPoint, Excel, imagen, ZIP o enlace externo.</span>
-                <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*" />
+                <span id="examFileLabel">PDF, Word, PowerPoint, Excel, imagen, ZIP o enlace externo.</span>
+                <input id="examFileInput" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*,audio/*,video/*" />
               </div>
               <div class="admin-actions">
-                <button class="ghost-button" type="button">Guardar borrador</button>
-                <button class="primary-button" type="button">Publicar evaluación</button>
+                <button class="ghost-button" type="button" id="saveExamDraft">Guardar borrador</button>
+                <button class="primary-button" type="button" id="publishExam">Publicar evaluación</button>
               </div>
+              <p class="admin-inline-state" id="examState">Sin cambios publicados.</p>
+            </section>
+
+            <section class="admin-panel content-manager-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Contenido académico</p>
+                  <h3>Subir material para estudiantes</h3>
+                </div>
+                <span class="pill">Archivos + texto</span>
+              </div>
+              <div class="admin-form-grid">
+                <label>
+                  Título visible
+                  <input id="materialTitle" type="text" value="Guía complementaria de práctica" />
+                </label>
+                <label>
+                  Sección del estudiante
+                  <select id="materialSection">
+                    <option value="materiales">Materiales</option>
+                    <option value="grabaciones">Grabaciones de clase</option>
+                    <option value="lecciones">Lecciones</option>
+                    <option value="bitacora">Bitácora</option>
+                    <option value="evaluaciones">Evaluaciones</option>
+                    <option value="evidencias">Evidencias</option>
+                  </select>
+                </label>
+                <label>
+                  Módulo destino
+                  <select id="materialModule">
+                    <option value="m1">Módulo 1</option>
+                    <option value="m2">Módulo 2</option>
+                    <option value="m3">Módulo 3</option>
+                    <option value="m4">Módulo 4</option>
+                    <option value="m5">Módulo 5</option>
+                    <option value="m6">Módulo 6</option>
+                    <option value="m7">Módulo 7</option>
+                    <option value="m8">Módulo 8</option>
+                    <option value="m9">Módulo 9</option>
+                    <option value="m10">Módulo 10</option>
+                    <option value="m11">Módulo 11</option>
+                    <option value="m12">Módulo 12</option>
+                    <option value="general">General</option>
+                  </select>
+                </label>
+              </div>
+              <label class="admin-textarea">
+                Texto o indicación para el estudiante
+                <textarea id="materialText" rows="5">Revisa este material antes de la próxima clase y registra una reflexión breve en tu bitácora.</textarea>
+              </label>
+              <div class="upload-dropzone">
+                <strong>Subir archivo académico</strong>
+                <span id="materialFileLabel">PDF, Word, Excel, PowerPoint, imagen, audio, video o ZIP.</span>
+                <input id="materialFileInput" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*,audio/*,video/*" />
+              </div>
+              <div class="admin-actions">
+                <button class="ghost-button" type="button" id="saveMaterialDraft">Guardar como borrador</button>
+                <button class="primary-button" type="button" id="publishMaterial">Publicar material</button>
+              </div>
+              <p class="admin-inline-state" id="materialState">Los materiales publicados aparecerán en el panel del estudiante.</p>
+              <div class="admin-list" id="materialAdminList"></div>
             </section>
 
             <section class="admin-panel evidence-panel">
@@ -439,21 +718,21 @@
                     <strong>Grabación de práctica de rol</strong>
                     <span>Mariana R. - Módulo 5 - video/mp4</span>
                   </div>
-                  <button class="ghost-button" type="button">Revisar</button>
+                  <button class="ghost-button" type="button" data-review-submission="Grabación de práctica de rol">Revisar</button>
                 </article>
                 <article class="submission-card">
                   <div>
                     <strong>Bitácora emocional</strong>
                     <span>Carlos M. - Módulo 3 - application/pdf</span>
                   </div>
-                  <button class="ghost-button" type="button">Revisar</button>
+                  <button class="ghost-button" type="button" data-review-submission="Bitácora emocional">Revisar</button>
                 </article>
                 <article class="submission-card">
                   <div>
                     <strong>Audio de conversación</strong>
                     <span>Laura P. - Módulo 2 - audio/m4a</span>
                   </div>
-                  <button class="ghost-button" type="button">Revisar</button>
+                  <button class="ghost-button" type="button" data-review-submission="Audio de conversación">Revisar</button>
                 </article>
               </div>
             </section>
@@ -483,9 +762,10 @@
                 <span>Diseño de acción</span><strong>3/5</strong>
               </div>
               <div class="admin-actions">
-                <button class="ghost-button" type="button">Solicitar ajustes</button>
-                <button class="primary-button" type="button">Aprobar módulo</button>
+                <button class="ghost-button" type="button" id="requestReviewChanges">Solicitar ajustes</button>
+                <button class="primary-button" type="button" id="approveReviewedModule">Aprobar módulo</button>
               </div>
+              <p class="admin-inline-state" id="reviewState">Selecciona una entrega para revisar.</p>
             </section>
 
             <section class="admin-panel roster-panel">
@@ -571,6 +851,58 @@
       </div>
     </div>
 
-    <script src="script.js?v=20260706-grades"></script>
+    <div class="evaluation-modal" id="evaluationModal" aria-hidden="true">
+      <article class="evaluation-modal-card" role="dialog" aria-modal="true" aria-labelledby="evaluationModalTitle">
+        <button class="icon-button evaluation-modal-close" type="button" id="closeEvaluationModal" title="Cerrar">x</button>
+        <p class="eyebrow" id="evaluationModalEyebrow">Evaluación del módulo</p>
+        <h2 id="evaluationModalTitle">Guía de evaluación</h2>
+        <p id="evaluationModalDescription"></p>
+        <div class="evaluation-brief-grid">
+          <div>
+            <span>Recurso base</span>
+            <strong id="evaluationResourceName">Plantilla de trabajo</strong>
+          </div>
+          <div>
+            <span>Entrega esperada</span>
+            <strong id="evaluationExpectedFormat">Documento, audio o video</strong>
+          </div>
+          <div>
+            <span>Estado</span>
+            <strong id="evaluationModalStatus">Disponible</strong>
+          </div>
+        </div>
+        <div class="evaluation-modal-section">
+          <h3>Instrucciones</h3>
+          <p id="evaluationInstructions"></p>
+        </div>
+        <div class="evaluation-modal-section">
+          <h3>Criterios de revisión</h3>
+          <ul id="evaluationRubric"></ul>
+        </div>
+        <div class="evaluation-upload-panel">
+          <div>
+            <h3>Subir evidencia</h3>
+            <p>Adjunta el trabajo realizado. Puedes subir documentos, imágenes, audio, video o archivos comprimidos.</p>
+          </div>
+          <label class="evaluation-file-drop">
+            <span id="evaluationFileLabel">Seleccionar archivo de entrega</span>
+            <input id="evaluationFileInput" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,image/*,audio/*,video/*" />
+          </label>
+          <label class="admin-textarea">
+            Comentario para el revisor
+            <textarea id="evaluationStudentComment" rows="4" placeholder="Escribe una nota breve sobre tu entrega, dudas o contexto para quien revisa."></textarea>
+          </label>
+        </div>
+        <div class="admin-actions evaluation-modal-actions">
+          <button class="ghost-button" type="button" id="downloadEvaluationGuide">Descargar guía</button>
+          <button class="primary-button" type="button" id="confirmEvaluationSubmission">Enviar a revisión</button>
+        </div>
+        <p class="admin-inline-state" id="evaluationModalState">Primero descarga o revisa la guía, realiza el trabajo y luego sube tu evidencia.</p>
+      </article>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js?v=20260707-scroll-agenda"></script>
   </body>
 </html>
