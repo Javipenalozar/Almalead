@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Almalead | Plataforma Académica</title>
-    <link rel="stylesheet" href="styles.css?v=20260703-gold-portal-fx" />
+    <link rel="stylesheet" href="styles.css?v=20260706-grades" />
   </head>
   <body class="auth-locked">
     <section class="login-screen" id="loginScreen" aria-label="Ingreso a Almalead">
@@ -161,9 +161,9 @@
             <p>Prácticas de rol, grabaciones y casos supervisados.</p>
           </article>
           <article class="metric-card">
-            <span>Estado</span>
-            <strong id="certStatus">En curso</strong>
-            <p>Requiere asistencia, entregables y evaluación final.</p>
+            <span>Promedio acumulado</span>
+            <strong id="gpaDisplay">0.0 / 5.0</strong>
+            <p>Calificación promedio de guías evaluadas.</p>
           </article>
         </section>
 
@@ -356,6 +356,7 @@
                   <tr>
                     <th>Módulo</th>
                     <th>Evaluación</th>
+                    <th>Nota</th>
                     <th>Estado académico</th>
                     <th>Acción del administrador</th>
                   </tr>
@@ -567,6 +568,6 @@
       </div>
     </div>
 
-    <script src="script.js?v=20260703-gold-portal-fx"></script>
+    <script src="script.js?v=20260706-grades"></script>
   </body>
 </html>

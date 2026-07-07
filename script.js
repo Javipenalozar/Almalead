@@ -205,6 +205,7 @@ const defaultStaff = [
 
 const state = {
   approvals: JSON.parse(localStorage.getItem("almalead.approvals") || "null"),
+  grades: JSON.parse(localStorage.getItem("almalead.grades") || "{}"),
   reflection: localStorage.getItem("almalead.reflection") || "",
   preEnrollments: JSON.parse(localStorage.getItem("almalead.preEnrollments") || "null") || defaultPreEnrollments,
   staff: JSON.parse(localStorage.getItem("almalead.staff") || "null") || defaultStaff,
@@ -240,7 +241,7 @@ const radialProgress = document.querySelector(".radial-progress");
 const overallProgress = document.querySelector("#overallProgress");
 const hoursCount = document.querySelector("#hoursCount");
 const practiceCount = document.querySelector("#practiceCount");
-const certStatus = document.querySelector("#certStatus");
+const gpaDisplay = document.querySelector("#gpaDisplay");
 const reflection = document.querySelector("#reflection");
 const saveState = document.querySelector("#saveState");
 const logoutButton = document.querySelector("#logoutButton");
@@ -293,6 +294,14 @@ function closeAuthPanels() {
 
 function persist() {
   localStorage.setItem("almalead.approvals", JSON.stringify(state.approvals));
+  localStorage.setItem("almalead.grades", JSON.stringify(state.grades));
+}
+
+function calculateGPA() {
+  const graded = modules.filter((m) => state.grades[m.id] != null);
+  if (graded.length === 0) return { gpa: 0, count: 0, total: modules.length };
+  const sum = graded.reduce((acc, m) => acc + state.grades[m.id], 0);
+  return { gpa: +(sum / graded.length).toFixed(2), count: graded.length, total: modules.length };
 }
 
 function persistRoster() {
@@ -400,9 +409,18 @@ function renderModules() {
 
 function renderEvaluations() {
   syncUnlockedModules();
-  evaluationList.innerHTML = modules
+  const { gpa, count } = calculateGPA();
+  evaluationList.innerHTML = `
+    <div class="gpa-banner">
+      <span>Promedio acumulado</span>
+      <strong>${gpa.toFixed(1)} / 5.0</strong>
+      <span>${count} de ${modules.length} guías calificadas</span>
+    </div>
+  ` + modules
     .map((module, index) => {
       const status = getModuleStatus(module.id);
+      const grade = state.grades[module.id];
+      const gradeDisplay = grade != null ? `<span class="grade-badge">${grade.toFixed(1)}</span>` : "";
       return `
         <article class="evaluation-card ${status}">
           <div>
@@ -412,6 +430,7 @@ function renderEvaluations() {
             <p>${module.evaluation}</p>
           </div>
           <div class="evaluation-actions">
+            ${gradeDisplay}
             <span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span>
             <button class="primary-button" type="button" data-submit-module="${module.id}" ${status === "available" ? "" : "disabled"}>
               Enviar
@@ -595,24 +614,31 @@ function renderCertification() {
 function renderMetrics() {
   const { completedHours, totalHours, blended } = calculateProgress();
   const donePractices = practices.filter((practice) => practice[2] === "Completada").length;
+  const { gpa } = calculateGPA();
 
   radialProgress.style.setProperty("--percent", blended);
   overallProgress.textContent = `${blended}%`;
   hoursCount.textContent = `${completedHours}/${totalHours}`;
   practiceCount.textContent = `${donePractices}/12`;
-  certStatus.textContent = blended >= 85 ? "Certificable" : "En curso";
+  document.querySelector("#gpaDisplay").textContent = `${gpa.toFixed(1)} / 5.0`;
 }
 
 function renderApprovals() {
   syncUnlockedModules();
+  const { gpa, count } = calculateGPA();
   approvalRows.innerHTML = modules
     .map((module, index) => {
       const status = getModuleStatus(module.id);
       const canApprove = status === "submitted";
+      const grade = state.grades[module.id];
+      const gradeValue = grade != null ? grade.toFixed(1) : "";
       return `
         <tr>
           <td>Módulo ${index + 1}: ${module.title}</td>
           <td>${module.evaluation}</td>
+          <td>
+            <input type="number" class="grade-input" data-grade-module="${module.id}" min="0" max="5" step="0.1" value="${gradeValue}" placeholder="—" ${status === "submitted" || status === "approved" ? "" : "disabled"} />
+          </td>
           <td><span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span></td>
           <td>
             <button class="primary-button table-action" type="button" data-approve-module="${module.id}" ${canApprove ? "" : "disabled"}>
@@ -622,7 +648,12 @@ function renderApprovals() {
         </tr>
       `;
     })
-    .join("");
+    .join("") + `
+    <tr class="gpa-row">
+      <td colspan="2"><strong>Promedio acumulado (${count} guías)</strong></td>
+      <td><strong class="gpa-value">${gpa.toFixed(1)}</strong></td>
+      <td colspan="2"></td>
+    </tr>`;
 }
 
 function renderAll() {
@@ -662,9 +693,16 @@ document.addEventListener("click", (event) => {
     }
   }
 
+  const gradeInput = event.target.closest("[data-grade-module]");
+  if (gradeInput) return;
+
   const approveButton = event.target.closest("[data-approve-module]");
   if (approveButton && !approveButton.disabled) {
     const moduleId = approveButton.dataset.approveModule;
+    const gradeField = document.querySelector(`[data-grade-module="${moduleId}"]`);
+    if (gradeField && gradeField.value) {
+      state.grades[moduleId] = Math.min(5, Math.max(0, parseFloat(gradeField.value)));
+    }
     state.approvals[moduleId] = "approved";
     persist();
     renderAll();
@@ -689,6 +727,23 @@ document.addEventListener("click", (event) => {
   }
 });
 
+document.addEventListener("change", (event) => {
+  const gradeInput = event.target.closest("[data-grade-module]");
+  if (gradeInput) {
+    const moduleId = gradeInput.dataset.gradeModule;
+    const value = parseFloat(gradeInput.value);
+    if (!isNaN(value)) {
+      state.grades[moduleId] = Math.min(5, Math.max(0, value));
+    } else {
+      delete state.grades[moduleId];
+    }
+    persist();
+    renderMetrics();
+    renderEvaluations();
+    renderApprovals();
+  }
+});
+
 document.querySelector("#saveReflection").addEventListener("click", () => {
   localStorage.setItem("almalead.reflection", reflection.value);
   saveState.textContent = "Bitácora guardada en este navegador.";
@@ -706,7 +761,8 @@ document.querySelector("#addPractice").addEventListener("click", () => {
 
 document.querySelector("#exportSnapshot").addEventListener("click", async (event) => {
   const { completedHours, totalHours, blended } = calculateProgress();
-  const snapshot = `Almalead - resumen académico\nAvance: ${blended}%\nMódulos: ${completedHours}/${totalHours}\nPrácticas: ${practices.length}\nEstado: ${certStatus.textContent}`;
+  const { gpa } = calculateGPA();
+  const snapshot = `Almalead - resumen académico\nAvance: ${blended}%\nMódulos: ${completedHours}/${totalHours}\nPrácticas: ${practices.length}\nPromedio: ${gpa.toFixed(1)} / 5.0`;
   try {
     await navigator.clipboard.writeText(snapshot);
     event.target.textContent = "Resumen copiado";
