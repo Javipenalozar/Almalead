@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260707-scroll-agenda" />
+    <link rel="stylesheet" href="styles.css?v=20260707-topbar-actions" />
   </head>
   <body class="auth-locked">
     <section class="login-screen" id="loginScreen" aria-label="Ingreso a Almalead">
@@ -112,8 +112,8 @@
           <a href="#evidencias">Evidencias</a>
           <a href="#mensajes">Mensajes</a>
           <a href="#certificacion">Certificación</a>
-          <a href="#estudiantes" data-role-only="admin">Estudiantes</a>
-          <a href="#admin" data-role-only="admin">Dirección académica</a>
+          <a href="#estudiantes" data-role-only="staff">Estudiantes</a>
+          <a href="#admin" data-role-only="staff">Dirección académica</a>
         </nav>
 
         <section class="mentor-panel">
@@ -132,14 +132,21 @@
             <p class="topbar-copy">Coaching ontológico, emocional y educativo con ciencia aplicada, práctica y ética.</p>
           </div>
           <div class="topbar-actions">
-            <button class="ghost-button compact-action" type="button" id="topbarMaterials">Materiales</button>
-            <button class="ghost-button compact-action" type="button" id="topbarPending">Pendientes</button>
+            <button class="ghost-button compact-action" type="button" id="topbarMaterials" aria-label="Abrir búsqueda rápida">Buscar</button>
+            <button class="ghost-button compact-action" type="button" id="topbarPending" aria-label="Ver pendientes académicos">Pendientes</button>
             <button class="profile-button" type="button" id="topbarProfile">
               <span>JP</span>
               <span id="profileName">Javier Peñaloza</span>
             </button>
             <button class="ghost-button" type="button" id="logoutButton">Salir</button>
           </div>
+          <aside class="quick-action-panel" id="quickActionPanel" hidden>
+            <div>
+              <p class="eyebrow" id="quickActionEyebrow">Acceso rápido</p>
+              <h3 id="quickActionTitle">Panel rápido</h3>
+            </div>
+            <div class="quick-action-list" id="quickActionList"></div>
+          </aside>
         </header>
 
         <section id="resumen" class="summary-grid portal-section active" data-section-title="Proceso de certificación Almalead" data-section-copy="Coaching ontológico, emocional y educativo con ciencia aplicada, práctica y ética.">
@@ -240,9 +247,22 @@
             <div>
               <p class="eyebrow">Proceso personal</p>
               <h2>Bitácora O-L-E-C</h2>
+              <p class="section-lead">Este espacio guarda el record reflexivo del participante: observaciones, aprendizajes, decisiones y próximos compromisos de cada módulo.</p>
             </div>
             <button class="primary-button" type="button" id="newJournalEntry">Nueva entrada</button>
           </div>
+          <article class="journal-purpose">
+            <div>
+              <p class="eyebrow">Intención de la bitácora</p>
+              <h3>Convertir la experiencia en aprendizaje visible</h3>
+              <p>Después de cada clase, práctica o conversación, registra qué observaste de ti, qué lenguaje usaste, qué emoción apareció, cómo respondió tu cuerpo y qué acción concreta vas a sostener.</p>
+            </div>
+            <div class="journal-purpose-steps">
+              <span>1. Elige módulo y dimensión</span>
+              <span>2. Escribe el aprendizaje clave</span>
+              <span>3. Guarda tu record personal</span>
+            </div>
+          </article>
           <div class="journal-layout">
             <article class="olec-map">
               <span>Mapa del observador</span>
@@ -256,9 +276,10 @@
             </article>
             <div class="journal-workspace">
               <div class="journal-prompt-list" id="journalPromptList"></div>
-              <aside class="tool-panel journal-editor-panel">
+              <aside class="tool-panel journal-editor-panel" id="journalEditorPanel">
                 <p class="eyebrow">Bitácora reflexiva</p>
-                <h2>Registro semanal</h2>
+                <h2>Nueva entrada de bitácora</h2>
+                <p class="journal-editor-copy">Usa este espacio para registrar una reflexión concreta. No tiene que ser perfecta: debe ayudarte a mirar tu proceso y volver a él cuando lo necesites.</p>
                 <div class="admin-form-grid">
                   <label>
                     Módulo
@@ -287,12 +308,22 @@
                     </select>
                   </label>
                 </div>
-                <label for="reflection">Aprendizaje clave</label>
-                <textarea id="reflection" rows="8" placeholder="Escribe aquí tu reflexión de la semana..."></textarea>
+                <label for="reflection">Cuerpo de la reflexión</label>
+                <textarea id="reflection" rows="8" placeholder="Ejemplo: Hoy observé que..., me di cuenta de..., la emoción que apareció fue..., mi próximo compromiso es..."></textarea>
                 <button class="primary-button" type="button" id="saveReflection">Guardar bitácora</button>
                 <p class="save-state" id="saveState">Sin cambios recientes.</p>
               </aside>
-              <div class="journal-list" id="journalList"></div>
+              <section class="journal-record-panel">
+                <div class="journal-record-heading">
+                  <div>
+                    <p class="eyebrow">Record personal</p>
+                    <h3>Historial de reflexiones</h3>
+                    <span id="journalRecordSummary">Sin entradas guardadas.</span>
+                  </div>
+                  <button class="ghost-button" type="button" id="downloadJournalRecord">Descargar record</button>
+                </div>
+                <div class="journal-list" id="journalList"></div>
+              </section>
             </div>
           </div>
         </section>
@@ -461,7 +492,7 @@
           <div class="checklist" id="certChecklist"></div>
         </section>
 
-        <section id="estudiantes" class="content-band student-band portal-section" data-role-only="admin" data-section-title="Gestión de estudiantes" data-section-copy="Seguimiento de avance, estados académicos y preinscripciones de la cohorte.">
+        <section id="estudiantes" class="content-band student-band portal-section" data-role-only="staff" data-section-title="Gestión de estudiantes" data-section-copy="Seguimiento de avance, estados académicos y preinscripciones de la cohorte.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Dirección académica</p>
@@ -472,7 +503,7 @@
           <div class="student-grid" id="studentGrid"></div>
         </section>
 
-        <section id="admin" class="content-band admin-band portal-section" data-role-only="admin" data-section-title="Dirección académica" data-section-copy="Panel de administración para evaluaciones, materiales, archivos, estudiantes y aprobaciones.">
+        <section id="admin" class="content-band admin-band portal-section" data-role-only="staff" data-section-title="Dirección académica" data-section-copy="Panel de administración para evaluaciones, materiales, archivos, estudiantes y aprobaciones.">
           <div class="section-heading">
             <div>
               <p class="eyebrow">Vista dirección académica</p>
@@ -561,13 +592,14 @@
           </section>
 
           <div class="admin-approval">
-            <h3>Aprobación manual por estudiante</h3>
+            <h3>Ruta de revisión y aprobación por estudiante</h3>
             <div class="practice-table-wrap">
               <table class="practice-table approval-table">
                 <thead>
                   <tr>
                     <th>Módulo</th>
-                    <th>Evaluación</th>
+                    <th>Qué se revisa</th>
+                    <th>Evidencia o entrega</th>
                     <th>Nota</th>
                     <th>Estado académico</th>
                     <th>Acción del administrador</th>
@@ -903,6 +935,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <script src="script.js?v=20260707-scroll-agenda"></script>
+    <script src="script.js?v=20260707-topbar-actions"></script>
   </body>
 </html>

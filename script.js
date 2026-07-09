@@ -453,6 +453,7 @@ const defaultStaff = [
 const state = {
   approvals: JSON.parse(localStorage.getItem("almalead.approvals") || "null"),
   grades: JSON.parse(localStorage.getItem("almalead.grades") || "{}"),
+  studentGrades: JSON.parse(localStorage.getItem("almalead.studentGrades") || "{}"),
   reflection: localStorage.getItem("almalead.reflection") || "",
   journalEntries: JSON.parse(localStorage.getItem("almalead.journalEntries") || "null") || journalEntries,
   preEnrollments: JSON.parse(localStorage.getItem("almalead.preEnrollments") || "null") || defaultPreEnrollments,
@@ -470,10 +471,30 @@ const state = {
 const demoUsers = {
   estudiante: { password: "almalead2026", name: "Estudiante Almalead", initials: "EA", role: "student" },
   admin: { password: "admin2026", name: "Dirección Académica", initials: "DA", role: "admin" },
+  profe: { password: "profe2026", name: "Profesor Almalead", initials: "PA", role: "professor" },
 };
 
 const preEnrollments = state.preEnrollments;
 let currentUserRole = "student";
+
+const savedStudentProfiles = JSON.parse(localStorage.getItem("almalead.studentProfiles") || "null");
+if (savedStudentProfiles?.length) {
+  studentProfiles.splice(0, studentProfiles.length, ...savedStudentProfiles);
+}
+
+function canAccessRole(roleOnly) {
+  if (!roleOnly) return true;
+  if (roleOnly === "staff") return ["admin", "professor", "coach", "mentor"].includes(currentUserRole);
+  return currentUserRole === roleOnly;
+}
+
+function applyRoleVisibility() {
+  document.querySelectorAll("[data-role-only]").forEach((element) => {
+    const allowed = canAccessRole(element.dataset.roleOnly);
+    element.hidden = !allowed;
+    element.setAttribute("aria-hidden", String(!allowed));
+  });
+}
 
 if (!state.approvals) {
   const completed = JSON.parse(localStorage.getItem("almalead.completed") || "[]");
@@ -528,6 +549,9 @@ const calendarList = document.querySelector("#calendarList");
 const lessonGrid = document.querySelector("#lessonGrid");
 const journalList = document.querySelector("#journalList");
 const journalPromptList = document.querySelector("#journalPromptList");
+const journalRecordSummary = document.querySelector("#journalRecordSummary");
+const downloadJournalRecord = document.querySelector("#downloadJournalRecord");
+const journalEditorPanel = document.querySelector("#journalEditorPanel");
 const evidenceLibrary = document.querySelector("#evidenceLibrary");
 const studentGrid = document.querySelector("#studentGrid");
 const preEnrollmentForm = document.querySelector("#preEnrollmentForm");
@@ -546,6 +570,10 @@ const newJournalEntry = document.querySelector("#newJournalEntry");
 const topbarMaterials = document.querySelector("#topbarMaterials");
 const topbarPending = document.querySelector("#topbarPending");
 const topbarProfile = document.querySelector("#topbarProfile");
+const quickActionPanel = document.querySelector("#quickActionPanel");
+const quickActionEyebrow = document.querySelector("#quickActionEyebrow");
+const quickActionTitle = document.querySelector("#quickActionTitle");
+const quickActionList = document.querySelector("#quickActionList");
 const studentUploadButton = document.querySelector("#studentUploadButton");
 const studentEvidenceInput = document.querySelector("#studentEvidenceInput");
 const practiceForm = document.querySelector("#practiceForm");
@@ -630,6 +658,7 @@ function applySession(user) {
     profileName.textContent = user.name;
     profileButton.querySelector("span").textContent = user.initials;
   }
+  applyRoleVisibility();
   showSection(location.hash.replace("#", "") || "resumen", { updateHash: false, instant: true });
 }
 
@@ -656,6 +685,7 @@ function closeAuthPanels() {
 function persist() {
   localStorage.setItem("almalead.approvals", JSON.stringify(state.approvals));
   localStorage.setItem("almalead.grades", JSON.stringify(state.grades));
+  localStorage.setItem("almalead.studentGrades", JSON.stringify(state.studentGrades));
   localStorage.setItem("almalead.journalEntries", JSON.stringify(state.journalEntries));
 }
 
@@ -683,6 +713,10 @@ function persistAdminContent() {
   localStorage.setItem("almalead.coachMessages", JSON.stringify(state.coachMessages));
 }
 
+function persistAcademicProfiles() {
+  localStorage.setItem("almalead.studentProfiles", JSON.stringify(studentProfiles));
+}
+
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
@@ -695,7 +729,7 @@ function showToast(message) {
 function showSection(sectionId, options = {}) {
   const requestedSection = portalSections.find((section) => section.id === sectionId);
   const restrictedTo = requestedSection?.dataset.roleOnly;
-  const targetId = requestedSection && (!restrictedTo || restrictedTo === currentUserRole) ? sectionId : "resumen";
+  const targetId = requestedSection && canAccessRole(restrictedTo) ? sectionId : "resumen";
   portalSections.forEach((section) => {
     section.classList.toggle("active", section.id === targetId);
   });
@@ -715,6 +749,57 @@ function showSection(sectionId, options = {}) {
   window.scrollTo({ top: 0, behavior: options.instant ? "auto" : "smooth" });
 }
 
+function closeQuickActionPanel() {
+  quickActionPanel.hidden = true;
+  quickActionPanel.classList.remove("open");
+}
+
+function openQuickActionPanel(kind) {
+  const pendingModules = modules
+    .filter((module) => ["available", "submitted"].includes(getModuleStatus(module.id)))
+    .slice(0, 4);
+  const pendingItems = pendingModules.length ? pendingModules.map((module) => {
+    const moduleNumber = modules.findIndex((item) => item.id === module.id) + 1;
+    const status = getModuleStatus(module.id);
+    return `
+      <button type="button" data-quick-section="evaluaciones">
+        <strong>Módulo ${moduleNumber}: ${module.title}</strong>
+        <span>${status === "submitted" ? "Entrega enviada, pendiente de revisión." : "Disponible para revisar guía y adjuntar evidencia."}</span>
+      </button>
+    `;
+  }).join("") : `
+    <article>
+      <strong>Sin pendientes críticos</strong>
+      <span>Por ahora no hay evaluaciones disponibles o en revisión.</span>
+    </article>
+  `;
+
+  const quickLinks = `
+    <button type="button" data-quick-section="materiales">
+      <strong>Materiales</strong>
+      <span>Guías, grabaciones y recursos publicados.</span>
+    </button>
+    <button type="button" data-quick-section="evaluaciones">
+      <strong>Evaluaciones</strong>
+      <span>Guías, entregas y calificaciones.</span>
+    </button>
+    <button type="button" data-quick-section="bitacora">
+      <strong>Bitácora O-L-E-C</strong>
+      <span>Crear o revisar reflexiones guardadas.</span>
+    </button>
+    <button type="button" data-quick-section="mensajes">
+      <strong>Mensajes a coaches</strong>
+      <span>Enviar dudas a Javi, Jedi o Nico.</span>
+    </button>
+  `;
+
+  quickActionEyebrow.textContent = kind === "pending" ? "Pendientes" : "Buscar";
+  quickActionTitle.textContent = kind === "pending" ? "Pendientes académicos" : "Búsqueda rápida";
+  quickActionList.innerHTML = kind === "pending" ? pendingItems : quickLinks;
+  quickActionPanel.hidden = false;
+  quickActionPanel.classList.add("open");
+}
+
 function getFileSummary(fileList) {
   const files = [...(fileList || [])];
   if (!files.length) return "Sin archivo adjunto";
@@ -724,6 +809,14 @@ function getFileSummary(fileList) {
 
 function getTodayISO() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function getTimestampLabel(date = new Date()) {
+  return new Intl.DateTimeFormat("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: cohortSchedule.timezone,
+  }).format(date);
 }
 
 function getRiskClass(risk) {
@@ -739,6 +832,89 @@ function getStudentProfile(studentId) {
 function getSelectedSubmission() {
   return state.submissionReviews.find((submission) => submission.id === state.selectedSubmissionId)
     || state.submissionReviews[0];
+}
+
+function normalizeText(value = "") {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function getStudentSubmissions(student) {
+  const studentName = normalizeText(student.name);
+  return state.submissionReviews.filter((submission) => (
+    submission.studentId === student.id
+    || normalizeText(submission.studentName) === studentName
+    || submission.storagePath?.startsWith(`${student.document}/`)
+  ));
+}
+
+function getModuleNumberFromText(value = "") {
+  const match = value.match(/m[oó]dulo\s*(\d+)/i);
+  return match ? Number(match[1]) : null;
+}
+
+function getStudentModuleStatus(student, moduleNumber) {
+  if (student.approvedModules.includes(moduleNumber)) return { label: "Aprobado", className: "done" };
+  if (student.submittedModules.includes(moduleNumber)) return { label: "En revisión", className: "review" };
+  if (student.blockedModules.includes(moduleNumber)) return { label: "Bloqueado", className: "pending" };
+  if (moduleNumber === student.currentModule) return { label: "Disponible", className: "review" };
+  return { label: "Pendiente", className: "pending" };
+}
+
+function getStudentEvidenceForModule(student, moduleNumber) {
+  const moduleLabel = `Módulo ${moduleNumber}`;
+  const profileEvidence = student.evidences
+    .filter(([, , evidenceModule]) => getModuleNumberFromText(evidenceModule) === moduleNumber)
+    .map(([title, status, evidenceModule]) => ({
+      title,
+      status,
+      moduleName: evidenceModule,
+      type: "Registro del perfil",
+    }));
+
+  const submissions = getStudentSubmissions(student)
+    .filter((submission) => getModuleNumberFromText(submission.moduleName) === moduleNumber)
+    .map((submission) => ({
+      id: submission.id,
+      title: submission.title,
+      status: submission.visibleToStudent ? `Publicado ${submission.score}/${submission.maxScore}` : submission.status,
+      moduleName: moduleLabel,
+      type: getMaterialTypeLabel(submission.fileName, "evaluaciones"),
+      fileName: submission.fileName,
+      storagePath: submission.storagePath,
+    }));
+
+  return [...submissions, ...profileEvidence];
+}
+
+function renderEvidenceMiniCards(items) {
+  if (!items.length) {
+    return `
+      <div class="approval-file-card empty">
+        <strong>Sin entrega asociada</strong>
+        <span>El estudiante aún no ha subido archivo, test, audio, video o evidencia para este módulo.</span>
+      </div>
+    `;
+  }
+
+  return items.map((item) => `
+    <div class="approval-file-card">
+      <strong>${item.title}</strong>
+      <span>${item.type} · ${item.fileName || item.moduleName}</span>
+      <small>${item.status}${item.storagePath ? ` · ${item.storagePath}` : ""}</small>
+    </div>
+  `).join("");
+}
+
+function focusSubmissionReview(submissionId) {
+  if (!submissionId) return;
+  state.selectedSubmissionId = submissionId;
+  localStorage.setItem("almalead.selectedSubmissionId", state.selectedSubmissionId);
+  renderSubmissionReviewCenter();
+  document.querySelector(".review-center-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function downloadTextFile(fileName, content) {
@@ -951,22 +1127,31 @@ function renderEvaluations() {
       const grade = state.grades[module.id];
       const gradeDisplay = grade != null ? `<span class="grade-badge">${grade.toFixed(1)}</span>` : "";
       const exams = publishedExams.filter((exam) => exam.moduleId === module.id);
-      const canSubmit = status === "available" && exams.length > 0;
+      const canSubmit = status === "available";
+      const guide = evaluationGuides[module.id];
       const examList = exams.length
         ? exams.map((exam) => `
             <button class="evaluation-resource" type="button" data-submit-exam="${exam.title}">
               <span>${getMaterialTypeLabel(exam.fileName, "evaluaciones")}</span>
               <strong>${exam.title}</strong>
-              <small>Entrega ${exam.dueDate} · ${exam.deliveryType} · ${exam.fileName}</small>
+              <small>Qué envías: ${exam.deliveryType}. Recurso base: ${exam.fileName}. Fecha límite: ${exam.dueDate}.</small>
             </button>
           `).join("")
         : `
-            <div class="evaluation-resource empty">
-              <span>Pendiente</span>
-              <strong>Sin evaluación publicada</strong>
-              <small>Dirección académica aún no ha publicado la evaluación de este módulo.</small>
-            </div>
+            <button class="evaluation-resource" type="button" data-submit-module="${module.id}" ${status === "locked" || status === "approved" || status === "submitted" ? "disabled" : ""}>
+              <span>Guía del módulo</span>
+              <strong>${guide.resourceName}</strong>
+              <small>Qué envías: ${guide.expectedFormat}. Actividad: ${module.evaluation}</small>
+            </button>
           `;
+      const buttonLabel = status === "submitted"
+        ? "En revisión"
+        : status === "approved"
+          ? "Aprobado"
+          : "Ver guía y adjuntar";
+      const buttonAttributes = exams.length
+        ? `data-submit-exam="${exams[0].title}"`
+        : `data-submit-module="${module.id}"`;
 
       return `
         <article class="evaluation-card ${status} ${exams.length ? "" : "empty"}">
@@ -974,7 +1159,12 @@ function renderEvaluations() {
             <span class="pill">Módulo ${index + 1}</span>
             <span class="pill">Disponible ${formatUnlockDate(module.unlockAt)}</span>
             <h3>${module.title}</h3>
-            <p>${exams.length} evaluación${exams.length === 1 ? "" : "es"} publicada${exams.length === 1 ? "" : "s"} por dirección académica.</p>
+            <p>${exams.length ? "Evaluación publicada por dirección académica." : "Guía base del módulo lista para desarrollar."} El envío queda en revisión para que el equipo académico califique y deje retroalimentación.</p>
+            <div class="evaluation-flow">
+              <span>1. Revisa la guía</span>
+              <span>2. Realiza la actividad</span>
+              <span>3. Adjunta evidencia</span>
+            </div>
             <div class="evaluation-resource-list">
               ${examList}
             </div>
@@ -982,8 +1172,8 @@ function renderEvaluations() {
           <div class="evaluation-actions">
             ${gradeDisplay}
             <span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span>
-            <button class="primary-button" type="button" data-submit-exam="${exams[0]?.title || ""}" ${canSubmit ? "" : "disabled"}>
-              ${exams.length ? "Enviar evaluación" : "Sin evaluación"}
+            <button class="primary-button" type="button" ${buttonAttributes} ${canSubmit ? "" : "disabled"}>
+              ${buttonLabel}
             </button>
           </div>
         </article>
@@ -1271,6 +1461,11 @@ function renderJournal() {
     item.status === "Publicado"
     && item.section === "bitacora"
   ));
+  const entries = state.journalEntries.map((entry, index) => ({
+    ...entry,
+    id: entry.id || `legacy-journal-${index}`,
+    createdAtLabel: entry.createdAtLabel || entry.createdAt,
+  }));
 
   journalPromptList.innerHTML = prompts.length
     ? prompts.map((item) => {
@@ -1294,20 +1489,59 @@ function renderJournal() {
       </article>
     `;
 
-  journalList.innerHTML = state.journalEntries
+  journalRecordSummary.textContent = entries.length
+    ? `${entries.length} entrada${entries.length === 1 ? "" : "s"} guardada${entries.length === 1 ? "" : "s"} en tu record personal.`
+    : "Sin entradas guardadas.";
+
+  journalList.innerHTML = entries.length ? entries
     .map((entry) => {
       const moduleLabel = entry.moduleId === "general"
         ? "General"
         : `Módulo ${modules.findIndex((module) => module.id === entry.moduleId) + 1}`;
       return `
       <article class="journal-card">
-        <span>${moduleLabel} · ${entry.dimension}</span>
-        <p>${entry.text}</p>
-        <time>${entry.createdAt}</time>
+        <div>
+          <span>${moduleLabel} · ${entry.dimension}</span>
+          <p>${entry.text}</p>
+          <time>${entry.createdAtLabel}</time>
+        </div>
+        <button class="ghost-button" type="button" data-open-journal-entry="${entry.id}">Abrir entrada</button>
       </article>
     `;
     })
-    .join("");
+    .join("") : `
+      <article class="journal-card empty">
+        <div>
+          <span>Sin registros todavía</span>
+          <p>Cuando guardes una reflexión, quedará en este historial para que puedas revisarla durante todo tu proceso.</p>
+          <time>Record personal Almalead</time>
+        </div>
+      </article>
+    `;
+}
+
+function buildJournalRecordText() {
+  return [
+    "Almalead - Record personal de bitácora",
+    `Generado: ${getTimestampLabel()}`,
+    "",
+    ...state.journalEntries.flatMap((entry, index) => {
+      const moduleLabel = entry.moduleId === "general"
+        ? "General"
+        : `Módulo ${modules.findIndex((module) => module.id === entry.moduleId) + 1}`;
+      return [
+        `Entrada ${state.journalEntries.length - index}`,
+        `Fecha: ${entry.createdAtLabel || entry.createdAt}`,
+        `Módulo: ${moduleLabel}`,
+        `Dimensión: ${entry.dimension}`,
+        "",
+        entry.text,
+        "",
+        "-----",
+        "",
+      ];
+    }),
+  ].join("\n");
 }
 
 function renderEvidenceLibrary() {
@@ -1349,6 +1583,19 @@ function renderStudents() {
 
 function renderAdminStudentProgress() {
   const selectedStudent = getStudentProfile(state.selectedStudentId);
+  const studentSubmissions = getStudentSubmissions(selectedStudent);
+  const visibleMovements = [
+    ...studentSubmissions.map((submission) => ({
+      title: `${submission.moduleName}: ${submission.title}`,
+      detail: `${submission.fileName} · ${submission.status} · ${submission.submittedAt}`,
+      status: submission.visibleToStudent ? "Calificación publicada" : "Pendiente de revisión",
+    })),
+    ...selectedStudent.evidences.map(([title, status, moduleName]) => ({
+      title: `${moduleName}: ${title}`,
+      detail: "Registro asociado al perfil académico",
+      status,
+    })),
+  ];
   const riskCounts = studentProfiles.reduce(
     (counts, student) => {
       counts[student.risk] = (counts[student.risk] || 0) + 1;
@@ -1412,6 +1659,40 @@ function renderAdminStudentProgress() {
           ${selectedStudent.evidences.map(([title, status, moduleName]) => `<li>${title} · ${moduleName} · ${status}</li>`).join("")}
         </ul>
       </section>
+    </div>
+    <div class="student-record-panel">
+      <div class="student-record-heading">
+        <div>
+          <h4>Expediente académico y movimientos</h4>
+          <p>Entregas, evidencias y acciones visibles para revisión del equipo académico.</p>
+        </div>
+        <span class="pill">${studentSubmissions.length} entrega${studentSubmissions.length === 1 ? "" : "s"} cargada${studentSubmissions.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="student-submission-cards">
+        ${studentSubmissions.length ? studentSubmissions.map((submission) => `
+          <article class="student-submission-card">
+            <span class="pill">${submission.moduleName}</span>
+            <h5>${submission.title}</h5>
+            <p>${getMaterialTypeLabel(submission.fileName, "evaluaciones")} · ${submission.fileName}</p>
+            <small>${submission.storagePath} · ${submission.submittedAt}</small>
+            <button class="ghost-button" type="button" data-open-student-submission="${submission.id}">Revisar y calificar</button>
+          </article>
+        `).join("") : `
+          <article class="student-submission-card empty">
+            <h5>Sin entregas cargadas</h5>
+            <p>Cuando el estudiante suba una evaluación, práctica, audio, video, imagen o documento aparecerá aquí.</p>
+          </article>
+        `}
+      </div>
+      <div class="student-timeline">
+        ${visibleMovements.map((movement) => `
+          <article>
+            <span>${movement.status}</span>
+            <strong>${movement.title}</strong>
+            <small>${movement.detail}</small>
+          </article>
+        `).join("")}
+      </div>
     </div>
     <div class="student-next-action">
       <strong>Próxima acción sugerida</strong>
@@ -1534,7 +1815,7 @@ function renderCertification() {
     ["12 módulos aprobados", completedHours >= totalHours],
     ["Asistencia mínima 80-85%", completedHours >= 10],
     ["12 prácticas documentadas", donePractices >= 12],
-    ["Bitácora reflexiva activa", reflection.value.trim().length > 20],
+    ["Bitácora reflexiva activa", state.journalEntries.some((entry) => entry.text?.trim().length > 20)],
     ["Evaluación final habilitada", blended >= 85],
   ];
 
@@ -1562,32 +1843,58 @@ function renderMetrics() {
 
 function renderApprovals() {
   syncUnlockedModules();
-  const { gpa, count } = calculateGPA();
+  const selectedStudent = getStudentProfile(state.selectedStudentId);
+  const studentSubmissions = getStudentSubmissions(selectedStudent);
+  const selectedStudentGrades = state.studentGrades[selectedStudent.id] || {};
+  const reviewedModules = modules.filter((module) => selectedStudentGrades[module.id] != null);
+  const gpa = reviewedModules.length
+    ? reviewedModules.reduce((sum, module) => sum + selectedStudentGrades[module.id], 0) / reviewedModules.length
+    : 0;
   approvalRows.innerHTML = modules
     .map((module, index) => {
-      const status = getModuleStatus(module.id);
-      const canApprove = status === "submitted";
-      const grade = state.grades[module.id];
+      const moduleNumber = index + 1;
+      const status = getStudentModuleStatus(selectedStudent, moduleNumber);
+      const evidence = getStudentEvidenceForModule(selectedStudent, moduleNumber);
+      const primarySubmission = studentSubmissions.find((submission) => getModuleNumberFromText(submission.moduleName) === moduleNumber);
+      const canReview = Boolean(primarySubmission);
+      const canApprove = canReview || selectedStudent.submittedModules.includes(moduleNumber);
+      const grade = selectedStudentGrades[module.id];
       const gradeValue = grade != null ? grade.toFixed(1) : "";
       return `
         <tr>
-          <td>Módulo ${index + 1}: ${module.title}</td>
-          <td>${module.evaluation}</td>
           <td>
-            <input type="number" class="grade-input" data-grade-module="${module.id}" min="0" max="5" step="0.1" value="${gradeValue}" placeholder="—" ${status === "submitted" || status === "approved" ? "" : "disabled"} />
+            <strong>Módulo ${moduleNumber}</strong>
+            <span>${module.title}</span>
           </td>
-          <td><span class="status ${status === "approved" ? "done" : status === "submitted" ? "review" : "pending"}">${getStatusLabel(status)}</span></td>
           <td>
-            <button class="primary-button table-action" type="button" data-approve-module="${module.id}" ${canApprove ? "" : "disabled"}>
-              Aprobar paso
-            </button>
+            <strong>${module.evaluation}</strong>
+            <span>Revisión de ${selectedStudent.name}</span>
+          </td>
+          <td>
+            <div class="approval-evidence-stack">
+              ${renderEvidenceMiniCards(evidence)}
+            </div>
+          </td>
+          <td>
+            <input type="number" class="grade-input" data-student-grade-module="${selectedStudent.id}:${module.id}" min="0" max="5" step="0.1" value="${gradeValue}" placeholder="—" ${canApprove ? "" : "disabled"} />
+          </td>
+          <td><span class="status ${status.className}">${status.label}</span></td>
+          <td>
+            <div class="approval-actions">
+              <button class="ghost-button table-action" type="button" data-open-student-submission="${primarySubmission?.id || ""}" ${canReview ? "" : "disabled"}>
+                Ver entrega
+              </button>
+              <button class="primary-button table-action" type="button" data-approve-student-module="${selectedStudent.id}:${module.id}" ${canApprove ? "" : "disabled"}>
+                Aprobar con contexto
+              </button>
+            </div>
           </td>
         </tr>
       `;
     })
     .join("") + `
     <tr class="gpa-row">
-      <td colspan="2"><strong>Promedio acumulado (${count} guías)</strong></td>
+      <td colspan="3"><strong>Promedio académico publicado (${reviewedModules.length} guías)</strong></td>
       <td><strong class="gpa-value">${gpa.toFixed(1)}</strong></td>
       <td colspan="2"></td>
     </tr>`;
@@ -1619,7 +1926,18 @@ document.addEventListener("click", (event) => {
   const navLink = event.target.closest(".nav-list a");
   if (navLink) {
     event.preventDefault();
+    closeQuickActionPanel();
     showSection(navLink.getAttribute("href").replace("#", ""));
+  }
+
+  const quickSectionButton = event.target.closest("[data-quick-section]");
+  if (quickSectionButton) {
+    closeQuickActionPanel();
+    showSection(quickSectionButton.dataset.quickSection);
+  }
+
+  if (!event.target.closest("#quickActionPanel") && !event.target.closest("#topbarMaterials") && !event.target.closest("#topbarPending")) {
+    closeQuickActionPanel();
   }
 
   const authOpenButton = event.target.closest("[data-auth-open]");
@@ -1642,6 +1960,11 @@ document.addEventListener("click", (event) => {
   const gradeInput = event.target.closest("[data-grade-module]");
   if (gradeInput) return;
 
+  const studentSubmissionButton = event.target.closest("[data-open-student-submission]");
+  if (studentSubmissionButton && !studentSubmissionButton.disabled) {
+    focusSubmissionReview(studentSubmissionButton.dataset.openStudentSubmission);
+  }
+
   const submitExamButton = event.target.closest("[data-submit-exam]");
   if (submitExamButton && !submitExamButton.disabled) {
     const exam = state.adminExams.find((item) => item.title === submitExamButton.dataset.submitExam);
@@ -1658,6 +1981,27 @@ document.addEventListener("click", (event) => {
     state.approvals[moduleId] = "approved";
     persist();
     renderAll();
+  }
+
+  const approveStudentModuleButton = event.target.closest("[data-approve-student-module]");
+  if (approveStudentModuleButton && !approveStudentModuleButton.disabled) {
+    const [studentId, moduleId] = approveStudentModuleButton.dataset.approveStudentModule.split(":");
+    const selectedStudent = getStudentProfile(studentId);
+    const moduleNumber = modules.findIndex((module) => module.id === moduleId) + 1;
+    const gradeField = document.querySelector(`[data-student-grade-module="${studentId}:${moduleId}"]`);
+    if (gradeField && gradeField.value) {
+      state.studentGrades[studentId] = state.studentGrades[studentId] || {};
+      state.studentGrades[studentId][moduleId] = Math.min(5, Math.max(0, parseFloat(gradeField.value)));
+    }
+    selectedStudent.approvedModules = [...new Set([...selectedStudent.approvedModules, moduleNumber])].sort((a, b) => a - b);
+    selectedStudent.submittedModules = selectedStudent.submittedModules.filter((item) => item !== moduleNumber);
+    selectedStudent.blockedModules = selectedStudent.blockedModules.filter((item) => item !== moduleNumber + 1);
+    selectedStudent.progress = Math.max(selectedStudent.progress, Math.round((selectedStudent.approvedModules.length / modules.length) * 100));
+    selectedStudent.lastActivity = "Ahora";
+    persist();
+    persistAcademicProfiles();
+    renderAll();
+    showToast(`Módulo ${moduleNumber} aprobado para ${selectedStudent.name}`);
   }
 
   const filterButton = event.target.closest("[data-filter]");
@@ -1687,6 +2031,27 @@ document.addEventListener("click", (event) => {
       "En producción este botón abrirá o descargará el archivo privado desde Supabase Storage.",
     ].join("\n"));
     showToast(`Recurso abierto: ${material.title}`);
+  }
+
+  const journalEntryButton = event.target.closest("[data-open-journal-entry]");
+  if (journalEntryButton) {
+    const entry = state.journalEntries.find((item) => (
+      item.id === journalEntryButton.dataset.openJournalEntry
+      || `legacy-journal-${state.journalEntries.indexOf(item)}` === journalEntryButton.dataset.openJournalEntry
+    ));
+    if (!entry) return;
+    const moduleLabel = entry.moduleId === "general"
+      ? "General"
+      : `Módulo ${modules.findIndex((module) => module.id === entry.moduleId) + 1}`;
+    downloadTextFile(`almalead-bitacora-${entry.id || getTodayISO()}.txt`, [
+      "Almalead - Entrada de bitácora",
+      `Fecha: ${entry.createdAtLabel || entry.createdAt}`,
+      `Módulo: ${moduleLabel}`,
+      `Dimensión: ${entry.dimension}`,
+      "",
+      entry.text,
+    ].join("\n"));
+    showToast("Entrada de bitácora abierta.");
   }
 
   if (event.target.matches("[data-open-panel='agenda']")) {
@@ -1774,12 +2139,16 @@ document.querySelector("#saveReflection").addEventListener("click", () => {
     return;
   }
   state.reflection = text;
+  const createdAt = new Date();
   state.journalEntries = [
     {
+      id: `journal-${createdAt.getTime()}`,
       moduleId: journalModule.value,
       dimension: journalDimension.value,
       text,
-      createdAt: getTodayISO(),
+      createdAt: createdAt.toISOString(),
+      createdAtLabel: getTimestampLabel(createdAt),
+      source: "Registro del participante",
     },
     ...state.journalEntries,
   ];
@@ -1790,6 +2159,14 @@ document.querySelector("#saveReflection").addEventListener("click", () => {
   reflection.value = "";
   renderJournal();
   renderCertification();
+});
+
+downloadJournalRecord.addEventListener("click", () => {
+  if (!state.journalEntries.length) {
+    showToast("Aún no hay entradas de bitácora para descargar.");
+    return;
+  }
+  downloadTextFile("almalead-record-bitacora.txt", buildJournalRecordText());
 });
 
 syncCalendar.addEventListener("click", (event) => {
@@ -1803,22 +2180,29 @@ syncCalendar.addEventListener("click", (event) => {
 
 newJournalEntry.addEventListener("click", () => {
   showSection("bitacora");
+  journalEditorPanel.classList.add("is-active");
+  journalEditorPanel.scrollIntoView({ behavior: "smooth", block: "center" });
   reflection.focus();
-  saveState.textContent = "Escribe tu reflexión y guárdala cuando esté lista.";
+  saveState.textContent = "Nueva entrada abierta. Escribe el cuerpo de tu reflexión y guarda tu record.";
   saveState.className = "save-state";
+  clearTimeout(newJournalEntry.timeoutId);
+  newJournalEntry.timeoutId = setTimeout(() => {
+    journalEditorPanel.classList.remove("is-active");
+  }, 2600);
 });
 
 topbarMaterials.addEventListener("click", () => {
-  showSection("materiales");
+  openQuickActionPanel("search");
 });
 
 topbarPending.addEventListener("click", () => {
-  showSection("evaluaciones");
-  showToast("Revisa evaluaciones pendientes, entregas en revisión y calificaciones publicadas.");
+  openQuickActionPanel("pending");
 });
 
 topbarProfile.addEventListener("click", () => {
+  closeQuickActionPanel();
   showSection("resumen");
+  showToast("Perfil y avance general del usuario activo.");
 });
 
 document.querySelector("#addPractice").addEventListener("click", () => {

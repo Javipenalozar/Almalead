@@ -58,7 +58,8 @@ body.auth-locked .app-shell {
   display: none;
 }
 
-body[data-role="student"] [data-role-only="admin"] {
+body[data-role="student"] [data-role-only],
+[data-role-only][hidden] {
   display: none !important;
 }
 
@@ -786,6 +787,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
+  position: relative;
   margin-bottom: 24px;
   padding: 2px 0 4px;
 }
@@ -840,6 +842,63 @@ button {
 .compact-action {
   min-height: 48px;
   padding-inline: 16px;
+}
+
+.quick-action-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(430px, 94vw);
+  padding: 16px;
+  border: 1px solid rgba(255, 207, 85, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(112deg, transparent 0 24%, rgba(255, 207, 85, 0.07) 35%, transparent 47%),
+    radial-gradient(circle at 92% 0%, rgba(255, 207, 85, 0.18), transparent 12rem),
+    linear-gradient(145deg, rgba(16, 10, 2, 0.98), rgba(0, 0, 0, 0.96));
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 247, 223, 0.05);
+}
+
+.quick-action-panel[hidden] {
+  display: none;
+}
+
+.quick-action-panel h3 {
+  margin: 2px 0 12px;
+  color: var(--cream);
+}
+
+.quick-action-list {
+  display: grid;
+  gap: 8px;
+}
+
+.quick-action-list button,
+.quick-action-list article {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 207, 85, 0.16);
+  border-radius: 8px;
+  text-align: left;
+  background: rgba(255, 207, 85, 0.045);
+}
+
+.quick-action-list button:hover {
+  border-color: rgba(255, 207, 85, 0.45);
+  background: rgba(255, 207, 85, 0.085);
+}
+
+.quick-action-list strong {
+  color: var(--gold-soft);
+}
+
+.quick-action-list span {
+  color: var(--muted);
 }
 
 .icon-button,
@@ -1285,7 +1344,24 @@ button:disabled {
 }
 
 .evaluation-card.empty {
-  opacity: 0.72;
+  opacity: 1;
+}
+
+.evaluation-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.evaluation-flow span {
+  padding: 7px 9px;
+  border: 1px solid rgba(255, 207, 85, 0.18);
+  border-radius: 999px;
+  color: var(--gold-soft);
+  font-size: 0.78rem;
+  font-weight: 900;
+  background: rgba(255, 207, 85, 0.055);
 }
 
 .evaluation-resource-list {
@@ -1509,8 +1585,151 @@ button:disabled {
   margin-bottom: 12px;
 }
 
-.approval-table td:last-child {
-  width: 150px;
+.approval-table th:nth-child(3),
+.approval-table td:nth-child(3) {
+  min-width: 260px;
+}
+
+.approval-table td:first-child strong,
+.approval-table td:nth-child(2) strong {
+  display: block;
+  color: var(--cream);
+}
+
+.approval-table td:first-child span,
+.approval-table td:nth-child(2) span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.approval-evidence-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.approval-file-card {
+  padding: 10px;
+  border: 1px solid rgba(255, 207, 85, 0.22);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 207, 85, 0.12), transparent 8rem),
+    rgba(255, 207, 85, 0.04);
+}
+
+.approval-file-card strong,
+.approval-file-card span,
+.approval-file-card small {
+  display: block;
+}
+
+.approval-file-card strong {
+  color: var(--cream);
+}
+
+.approval-file-card span,
+.approval-file-card small {
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.approval-file-card.empty {
+  border-style: dashed;
+  opacity: 0.72;
+}
+
+.approval-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.student-record-panel {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(255, 207, 85, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(112deg, transparent 0 24%, rgba(255, 207, 85, 0.055) 35%, transparent 47%),
+    radial-gradient(circle at 90% 0%, rgba(255, 207, 85, 0.14), transparent 12rem),
+    rgba(0, 0, 0, 0.2);
+}
+
+.student-record-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.student-record-heading h4 {
+  margin-bottom: 4px;
+}
+
+.student-record-heading p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.student-submission-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.student-submission-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 14px;
+  border: 1px solid rgba(255, 207, 85, 0.2);
+  border-radius: 8px;
+  background: rgba(6, 4, 1, 0.62);
+}
+
+.student-submission-card h5 {
+  margin: 0;
+  color: var(--cream);
+  font-size: 1rem;
+}
+
+.student-submission-card p,
+.student-submission-card small {
+  margin: 0;
+  color: var(--muted);
+}
+
+.student-submission-card.empty {
+  opacity: 0.72;
+}
+
+.student-timeline {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.student-timeline article {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 207, 85, 0.12);
+}
+
+.student-timeline span {
+  color: var(--gold);
+  font-weight: 900;
+}
+
+.student-timeline strong {
+  color: var(--cream);
+}
+
+.student-timeline small {
+  grid-column: 2;
+  color: var(--muted);
 }
 
 .two-column {
@@ -2261,6 +2480,55 @@ textarea {
   gap: 14px;
 }
 
+.section-lead {
+  max-width: 780px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.35;
+}
+
+.journal-purpose {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(255, 207, 85, 0.18);
+  border-radius: 8px;
+  background:
+    linear-gradient(112deg, transparent 0 24%, rgba(255, 207, 85, 0.06) 35%, transparent 47%),
+    radial-gradient(circle at 88% 12%, rgba(255, 207, 85, 0.14), transparent 14rem),
+    rgba(0, 0, 0, 0.24);
+}
+
+.journal-purpose h3 {
+  margin: 4px 0 8px;
+  color: var(--cream);
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+}
+
+.journal-purpose p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.journal-purpose-steps {
+  display: grid;
+  gap: 8px;
+}
+
+.journal-purpose-steps span {
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 207, 85, 0.18);
+  border-radius: 8px;
+  color: var(--gold-soft);
+  font-weight: 900;
+  background: rgba(255, 207, 85, 0.055);
+}
+
 .journal-prompt-list {
   display: grid;
   gap: 10px;
@@ -2302,6 +2570,44 @@ textarea {
 .journal-editor-panel {
   display: grid;
   gap: 12px;
+}
+
+.journal-editor-panel.is-active {
+  border-color: rgba(255, 215, 104, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(255, 215, 104, 0.18),
+    0 0 42px rgba(214, 169, 50, 0.18);
+}
+
+.journal-editor-copy {
+  margin: -4px 0 4px;
+  color: var(--muted);
+}
+
+.journal-record-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.journal-record-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  border: 1px solid rgba(255, 207, 85, 0.16);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(255, 207, 85, 0.12), transparent 10rem),
+    rgba(0, 0, 0, 0.22);
+}
+
+.journal-record-heading h3 {
+  margin: 2px 0 4px;
+}
+
+.journal-record-heading span {
+  color: var(--muted);
 }
 
 .calendar-focus,
@@ -2626,6 +2932,10 @@ textarea {
 .olec-radar strong:nth-child(4) { left: 0; top: 50%; transform: translateY(-50%); }
 
 .journal-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
   padding: 14px;
 }
 
@@ -2637,6 +2947,11 @@ textarea {
 .journal-card p {
   margin: 8px 0;
   color: var(--cream);
+}
+
+.journal-card.empty {
+  grid-template-columns: 1fr;
+  opacity: 0.78;
 }
 
 .evidence-library {
@@ -2951,6 +3266,8 @@ textarea {
   .cohort-grid,
   .student-kpi-grid,
   .student-detail-grid,
+  .student-submission-cards,
+  .journal-purpose,
   .grade-item,
   .evaluation-grid,
   .admin-studio,
@@ -3017,6 +3334,25 @@ textarea {
   .evaluation-actions {
     justify-content: space-between;
     justify-items: stretch;
+  }
+
+  .student-record-heading,
+  .journal-record-heading,
+  .student-timeline article {
+    grid-template-columns: 1fr;
+  }
+
+  .student-record-heading,
+  .journal-record-heading {
+    display: grid;
+  }
+
+  .student-timeline small {
+    grid-column: auto;
+  }
+
+  .journal-card {
+    grid-template-columns: 1fr;
   }
 
   .segmented-control {
